@@ -36,4 +36,4 @@ zMat = reshape(zList,pxX,pxY);
 dx = (xMat(end,1)-xList(1,1))/size(xMat,1);
 
 %...and store as a single 3D matrix
-AFMmat = cat(3,xMat,yMat,zMat);
+AFMmat = cat(3,xMat',yMat',zMat');

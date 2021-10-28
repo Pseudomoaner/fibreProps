@@ -88,8 +88,12 @@ for F = FInds'
             bound = bwtraceboundary(fibrePx,[startY,startX],'N');
         end
         fibreProps(measInd).midpoint = bound(round(size(bound,1)/4),:);
-        
+        fibreProps(measInd).backList = bound(1:floor(size(bound,1)/2),:);
+
         midInd = sub2ind(size(origImg),fibreProps(measInd).midpoint(1),fibreProps(measInd).midpoint(2));
+
+        %Search for the width of the fibre at its midpoint in the links
+        %structure
         foundFlag = false;
         for l = 1:size(inLinks,2)
             if sum(inLinks(l).point == midInd) == 1
@@ -113,6 +117,7 @@ for F = FInds'
             fibreProps(measInd).midwidth = nan(1); %Couldn't find the midpoint for some reason
         end
     else
+        fibreProps(measInd).backList = nan(1);
         fibreProps(measInd).midpoint = nan(1,2);
         fibreProps(measInd).midwidth = nan(1);
     end

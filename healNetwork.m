@@ -18,7 +18,7 @@ function [healNode,healLink] = healNetwork(inNode,inLink,visualise)
 %
 %   Author: Oliver J. Meacock, (c) 2020
 
-minSingNodeEdgeLen = 15; %How long the link associated with a singly connected node should be for both to be retained
+minSingNodeEdgeLen = 10; %How long the link associated with a singly connected node should be for both to be retained
 
 %% Part 0: Recast various fields to avoid use of awkward uint16 type
 for l = 1:size(inLink,2)
@@ -265,7 +265,76 @@ for i = 1:size(inNode,2)
     inNode(i).conn(remLinks) = [];
 end
 
-%% Part 6: Optional: Validation of output
+%% Part 6: Repeat double link node removal, now 'eyes' have been removed
+badNodes = [];
+for i = 1:size(inNode,2)
+    if numel(inNode(i).links) == 2
+        badNodes = [badNodes;i];
+    end
+end
+
+%For each bad node, one link will also need to be deleted. Associated data
+%will need to be inherited by the remaining link.
+badLinks = [];
+for i = 1:size(badNodes,1)
+    bN = badNodes(i);
+    bL = inNode(bN).links(2);
+    gL = inNode(bN).links(1);
+    
+    [glComx,glComy,glPt] = matchNodeAndLinkEnd(inNode,inLink,bN,gL);
+    [blComx,blComy,blPt] = matchNodeAndLinkEnd(inNode,inLink,bN,bL);
+    
+    %Storage order will be [good link, bad node, bad link]
+    glPt = flip(glPt);
+    glComx = flip(glComx);
+    glComy = flip(glComy);
+    
+    inLink(gL).point = [glPt,inNode(bN).idx',blPt];
+    inLink(gL).comx = [glComx,inNode(bN).comx',blComx];
+    inLink(gL).comy = [glComy,inNode(bN).comy',blComy];
+    
+    %Reindex connections between kept link and good nodes
+    if inLink(bL).n1 == bN
+        newTgt = inLink(bL).n2;
+    else
+        newTgt = inLink(bL).n1;
+    end
+    if inLink(gL).n1 == bN
+        inLink(gL).n1 = newTgt;
+        src = inLink(gL).n2;
+    else
+        inLink(gL).n2 = newTgt;
+        src = inLink(gL).n1;
+    end
+    tgtNdChangeInd = inNode(newTgt).conn == bN;
+    srcNdChangeInd = inNode(src).conn == bN;
+    inNode(newTgt).conn(tgtNdChangeInd) = src;
+    inNode(src).conn(srcNdChangeInd) = newTgt;
+    inNode(newTgt).links(tgtNdChangeInd) = gL;
+    inNode(src).links(srcNdChangeInd) = gL;
+    
+    badLinks = [badLinks;bL];
+end
+
+%Remove bad links and nodes
+inNode(badNodes) = [];
+inLink(badLinks) = [];
+
+%Reindex node links and nodes
+for i = 1:size(inNode,2)
+    for j = 1:size(inNode(i).links,2)
+        inNode(i).links(j) = inNode(i).links(j) - sum(badLinks <= inNode(i).links(j));
+        inNode(i).conn(j) = inNode(i).conn(j) - sum(badNodes <= inNode(i).conn(j));
+    end
+end
+
+%And reindex link nodes
+for i = 1:size(inLink,2)
+    inLink(i).n1 = inLink(i).n1 - sum(badNodes <= inLink(i).n1);
+    inLink(i).n2 = inLink(i).n2 - sum(badNodes <= inLink(i).n2);
+end
+
+%% Part 7: Optional: Validation of output
 if visualise
     figure(1)
     hold on

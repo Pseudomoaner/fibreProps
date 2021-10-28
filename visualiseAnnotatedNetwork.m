@@ -41,6 +41,7 @@ axis tight
 ax.XTick = [];
 ax.YTick = [];
 ax.Box = 'on';
+ax.YDir = 'reverse';
 
 %Begin with links. Colour each fibre a separate random colour.
 fibCols = rand(size(noteLinks,2),3); %Much larger than needed, but avoids needing to run through data first
@@ -69,6 +70,7 @@ axis tight
 ax.XTick = [];
 ax.YTick = [];
 ax.Box = 'on';
+ax.YDir = 'reverse';
 
 for n = 1:size(noteNodes,2)
     if numel(noteNodes(n).links) == 4
@@ -110,6 +112,7 @@ fibWidImg = zeros(size(origZ));
 for l = 1:size(noteLinks,2)
     fibWidImg(noteLinks(l).point) = noteLinks(l).widths;
 end
+fibWidImg = fibWidImg';
 
 backProjImg = zeros(size(origZ));
 widSet = unique(fibWidImg(:));
@@ -122,11 +125,11 @@ for w = widSet'
     backProjImg = or(backProjImg,currProj);
 end
 
-dispImg = cat(3,backProjImg'*0.75,origZ/max(origZ(:)),backProjImg'*0.75);
+dispImg = cat(3,backProjImg*0.75,origZ/max(origZ(:)),backProjImg*0.75);
 
 figure(2)
 subplot(1,2,1)
-imshow(flip(dispImg))
+imshow(dispImg)
 
 title('Back-projected network')
 
@@ -141,9 +144,9 @@ end
 [vals,order] = sort(fibScores);
 
 %Paste backprojection into each channel
-rCh = (origZ'-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
-gCh = (origZ'-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
-bCh = (origZ'-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
+rCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
+gCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
+bCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 
 cmap = colormap('hsv'); %For angular variables
 % cmap = colormap('jet'); %For linear variables
@@ -165,7 +168,7 @@ for F = round(size(vals,2)*showFracLo)+1:round(size(vals,2)*showFracHi)
         Find = order(F);
         
         se = strel('disk',round(fibreProps(Find).width/widReconFac));
-        currInds = logical(imdilate(fibreProps(Find).backbone,se));
+        currInds = logical(imdilate(fibreProps(Find).backbone',se));
         
         rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
         gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
@@ -175,7 +178,7 @@ end
 
 showIm = cat(3,rCh,gCh,bCh);
 subplot(1,2,2)
-imshow(imrotate(showIm,90))
+imshow(showIm)
 
 title('Back-projected fibres')
 

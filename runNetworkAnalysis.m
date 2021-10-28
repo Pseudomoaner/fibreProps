@@ -1,8 +1,8 @@
 clear all
 close all
 
-root = 'C:\Users\olijm\Desktop\Laia analysis\MachineLearnTest';
-inputFiles = {'I6_Ori'};%{'WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
+root = 'C:\Users\olijm\Desktop\Laia analysis\OrientationHistogramTweakTest';
+inputFiles = {'Image_1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
 inputExtension = '.txt';
 outputExtension = '.tif';
 
@@ -31,7 +31,7 @@ for i = 1:size(inputFiles,2)
     
     if visualise
         %Reconstruct network visualisation to check it looks OK
-        backProjImg = visualiseAnnotatedNetwork(noteNodes,noteLinks,fibreProps.(inputFiles{i}),flattenedImg');
+        backProjImg = visualiseAnnotatedNetwork(noteNodes,noteLinks,fibreProps.(inputFiles{i}),flattenedImg);
     end
     
     %Collate measures and save

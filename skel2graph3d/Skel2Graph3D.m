@@ -75,7 +75,7 @@ for i=1:cc2.NumObjects
     node(i).idx = cc2.PixelIdxList{i};
     node(i).links = [];
     node(i).conn = [];
-    [x,y,z]=ind2sub([w l h],node(i).idx);
+    [y,x,z]=ind2sub([w l h],node(i).idx);
     node(i).comx = x;
     node(i).comy = y;
     node(i).comz = z;
@@ -98,7 +98,7 @@ for i=1:cc3.NumObjects
     node(ni).idx = cc3.PixelIdxList{i};
     node(ni).links = [];
     node(ni).conn = [];
-    [x,y,z]=ind2sub([w l h],node(ni).idx);
+    [y,x,z]=ind2sub([w l h],node(ni).idx);
     node(ni).comx = x;
     node(ni).comy = y;
     node(ni).comz = z;
@@ -184,7 +184,7 @@ A = sparse(A);
 
 % transform all voxel and position indices back to non-padded coordinates
 for i=1:length(node)
-    [x,y,z] = ind2sub([w,l,h],node(i).idx);
+    [y,x,z] = ind2sub([w,l,h],node(i).idx);
     node(i).idx = sub2ind([w-2,l-2,h-2],x-1,y-1,z-1);
     node(i).comx = node(i).comx - 1;
     node(i).comy = node(i).comy - 1;
@@ -196,6 +196,6 @@ end;
 
 % transform all link voxel indices back to non-padded coordinates
 for i=1:length(link)
-    [x,y,z] = ind2sub([w,l,h],link(i).point);
+    [y,x,z] = ind2sub([w,l,h],link(i).point);
     link(i).point = sub2ind([w-2,l-2,h-2],x-1,y-1,z-1);
 end;
