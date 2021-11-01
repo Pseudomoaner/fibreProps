@@ -18,7 +18,7 @@ function [healNode,healLink] = healNetwork(inNode,inLink,visualise)
 %
 %   Author: Oliver J. Meacock, (c) 2020
 
-minSingNodeEdgeLen = 10; %How long the link associated with a singly connected node should be for both to be retained
+minSingNodeEdgeLen = 15; %How long the link associated with a singly connected node should be for both to be retained
 
 %% Part 0: Recast various fields to avoid use of awkward uint16 type
 for l = 1:size(inLink,2)

@@ -28,8 +28,8 @@ function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImag
 %   Author: Oliver J. Meacock, (c) 2021
 
 %Analysis parameters
-ridgeScale = (8:2:80)/dx; %Scales are in nm; converted to pixels  
-minBranch = 10;
+ridgeScale = (8:1:40)/dx; %Scales are in nm; converted to pixels  
+minBranch = 5; %Defines the minimal length of an isolated branch - branches shorter than this are excluded
 
 %Create image of ridges in image, and sekeletonize
 [ridgeImg,Width,Nscores,fibreGroups] = bwRidgeCenterMod(flatImage,ridgeScale);

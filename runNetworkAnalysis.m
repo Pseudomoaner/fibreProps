@@ -13,7 +13,7 @@ flattenScale = 15; %Scale of the upper DOG filter
 
 for i = 1:size(inputFiles,2)
     [AFMmat,dx] = txtToMat(root,[inputFiles{i},inputExtension]);
-    dx = 1; %Need to set to real units once they have been properly recorded
+    dx = 0.5; %Need to set to real units once they have been properly recorded
     
     %First flatten the image
     origZvals = AFMmat(:,:,3) - min(min(AFMmat(:,:,3))); %Sets the smallest value to zero

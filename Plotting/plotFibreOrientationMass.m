@@ -11,11 +11,11 @@ function [] = plotFibreOrientationMass(fibreOrientations,fibreSizes)
 
 noBins = 18;
 
-angSet = linspace(-pi/2,pi/2,noBins);
-[~,~,angBin] = histcounts(vertcat(fibreOrientations),'BinEdges',angSet);
+angSet = linspace(0,pi,noBins);
+[~,~,angBin] = histcounts(vertcat(fibreOrientations)+pi/2,'BinEdges',angSet);
 binMasses = accumarray(angBin,fibreSizes);
 
 polarplot(angSet(1:end-1) + diff(angSet(1:2))/2,binMasses,'r','lineWidth',1.5)
 
 ax = gca;
-ax.ThetaLim = [-90,90];
+ax.ThetaLim = [0,180];
