@@ -1,8 +1,8 @@
 clear all
 close all
 
-root = 'C:\Users\olijm\Desktop\Laia analysis\OrientationHistogramTweakTest';
-inputFiles = {'Image_1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
+root = 'C:\Users\olijm\Desktop\FibreDetectionDebug';
+inputFiles = {'ponA_skinny_small_image1','ponA_skinny_rotated_image1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
 inputExtension = '.txt';
 outputExtension = '.tif';
 
@@ -41,4 +41,4 @@ for i = 1:size(inputFiles,2)
     imwrite(uint8(round((flattenedImg-max(flattenedImg(:)))*255/(min(flattenedImg(:))-max(flattenedImg(:))))),fullfile(root,[inputFiles{i},outputExtension]))
 end
 
-save(fullfile(root,'networkMeasures.mat'),'networkMeasures','fibreProps')
+% save(fullfile(root,'networkMeasures.mat'),'networkMeasures','fibreProps')

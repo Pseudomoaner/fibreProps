@@ -124,7 +124,36 @@ for F = FInds'
     
     %Find the fibre orientation
     [fibrePxY,fibrePxX] = ind2sub(size(origImg),find(fibrePx));
-    fibreProps(measInd).orientation = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
+    if abs(fibrePxX(end) - fibrePxX(1)) < abs(fibrePxY(end) - fibrePxY(1)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+        fibreProps(measInd).meanOrientation = atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX)));
+    else
+        unwrapped = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
+        fibreProps(measInd).meanOrientation = -wrapToPi(unwrapped*2 + pi)/2;
+    end
+%     fitLine = polyfit(fibrePxX,fibrePxY,1);
+%     fibreProps(measInd).meanOrientation = atan(fitLine(1));
+
+    %Half-width of moving window used to calculate local fibre orientatino
+    oriWindHalfWidth = 10;
+    if ~isnan(fibreProps(measInd).backList)
+        fibreProps(measInd).localOrientation = zeros(size(fibreProps(measInd).backList,1),1);
+        for i = 1:size(fibreProps(measInd).backList,1)
+            ind1 = max(1,i-oriWindHalfWidth);
+            ind2 = min(size(fibreProps(measInd).backList,1),i+oriWindHalfWidth);
+
+            pxList = fibreProps(measInd).backList(ind1:ind2,:);
+            if abs(pxList(end,1) - pxList(1,1)) < abs(pxList(end,2) - pxList(1,2)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+                fibreProps(measInd).localOrientation(i) = atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1))));
+            else
+                unwrapped = atan((pxList(:,1)-mean(pxList(:,1)))\(pxList(:,2)-mean(pxList(:,2))));
+                fibreProps(measInd).localOrientation(i) = -wrapToPi(unwrapped*2 + pi)/2;
+            end
+%             fitLine = polyfit(pxList(:,1),pxList(:,2),1);
+%             fibreProps(measInd).localOrientation(i) = atan(1/fitLine(1));
+        end
+    else
+        fibreProps.localOrientation = NaN;
+    end
     
     fibreProps(measInd).size = sum(fibrePx(:))*dx; %Length of the fibre
     fibreProps(measInd).backbone = fibrePx;

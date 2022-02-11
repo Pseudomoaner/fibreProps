@@ -135,45 +135,92 @@ title('Back-projected network')
 
 %The fourth figure will overlay a backprojection of each fibre
 
-%Sort fibres by a value associated with them (length, width etc.)
-fibScores = zeros(size(fibreProps));
-for F = 1:size(fibreProps,2)
-%     fibScores(F) = sum(fibreProps(F).backbone(:));
-    fibScores(F) = fibreProps(F).orientation;
-end
-[vals,order] = sort(fibScores);
+colType = 'localOrientation';
 
 %Paste backprojection into each channel
 rCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 gCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 bCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 
-cmap = colormap('hsv'); %For angular variables
-% cmap = colormap('jet'); %For linear variables
+switch colType
+    case {'localOrientation','globalOrientation'}
+        cmap = colormap('hsv'); %For angular variables
+    case 'Length'
+        cmap = colormap('jet'); %For linear variables
+end
 
-showFracLo = 0; %What fraction of the largest fibres should be shown
-showFracHi = 1;
-
-for F = round(size(vals,2)*showFracLo)+1:round(size(vals,2)*showFracHi)
-    if ~isnan(vals(F)) %NaN for any fibres that weren't associated with links
-        currCInd = ceil(((vals(F)-min(vals))/(max(vals)-min(vals)))*size(cmap,1));
-        
-        if currCInd > size(cmap,1)
-            currCInd = size(cMap,1);
-        elseif currCInd <= 0
-            currCInd = 1;
+switch colType
+    case 'Length'
+        showFracLo = 0; %What fraction of the largest fibres should be shown
+        showFracHi = 1;
+        %Sort fibres by a value associated with them (length, width etc.)
+        fibScores = zeros(size(fibreProps));
+        for F = 1:size(fibreProps,2)
+            fibScores(F) = sum(fibreProps(F).backbone(:));
         end
-        
-        cVals = cmap(currCInd,:);
-        Find = order(F);
-        
-        se = strel('disk',round(fibreProps(Find).width/widReconFac));
-        currInds = logical(imdilate(fibreProps(Find).backbone',se));
-        
-        rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
-        gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
-        bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
-    end
+        [sortFibScores,order] = sort(fibScores);
+
+        for F = round(size(sortFibScores,2)*showFracLo)+1:round(size(sortFibScores,2)*showFracHi) %Loop through fibres
+            if ~isnan(sortFibScores(F)) %NaN for any fibres that weren't associated with links
+                currCInd = ceil(((sortFibScores(F)-min(sortFibScores))/(max(sortFibScores)-min(sortFibScores)))*size(cmap,1));
+                currCInd = min(currCInd,size(cmap,1));
+                currCInd = max(currCInd,1);
+
+                cVals = cmap(currCInd,:);
+                Find = order(F);
+
+                se = strel('disk',round(fibreProps(Find).width/widReconFac));
+                currInds = logical(imdilate(fibreProps(Find).backbone',se));
+
+                rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
+                gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
+                bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
+            end
+        end
+    case 'meanOrientation'
+        %Concateanate fibre scores
+        fibScores = [fibreProps(F).meanOrientation];
+
+        for F = 1:size(fibreProps,2)
+            if ~isnan(fibScores(F))
+                currCInd = ceil(((fibreProps(F).meanOrientation(i)+pi/2)/pi)*size(cmap,1));
+                currCInd = min(currCInd,size(cmap,1));
+                currCInd = max(currCInd,1);
+
+                cVals = cmap(currCInd,:);
+
+                se = strel('disk',round(fibreProps(F).width/widReconFac));
+                currInds = logical(imdilate(fibreProps(F).backbone',se));
+
+                rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
+                gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
+                bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
+            end
+        end
+    case 'localOrientation' %Rather expansive for what it does... may be able to improve
+        for F = 1:size(fibreProps,2)
+            if sum(isnan(fibreProps(F).localOrientation)) == 0
+                se = strel('disk',round(fibreProps(F).width/widReconFac));
+                for i = 1:size(fibreProps(F).localOrientation,1)
+                    currCInd = ceil(((fibreProps(F).localOrientation(i)+pi/2)/pi)*size(cmap,1));
+                    currCInd = min(currCInd,size(cmap,1));
+                    currCInd = max(currCInd,1);
+
+                    cVals = cmap(currCInd,:);
+                    
+                    xLoc = fibreProps(F).backList(i,1);
+                    yLoc = fibreProps(F).backList(i,2);
+
+                    currInds = zeros(size(fibreProps(F).backbone'));
+                    currInds(yLoc,xLoc) = 1;
+                    currInds = logical(imdilate(currInds,se));
+
+                    rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
+                    gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
+                    bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
+                end
+            end
+        end
 end
 
 showIm = cat(3,rCh,gCh,bCh);

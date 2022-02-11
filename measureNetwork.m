@@ -28,7 +28,7 @@ function networkMeasures = measureNetwork(noteNodes,noteLinks,fibreProps,origZva
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
-sizePrctile = 80;
+sizePrctile = 0;
 fibSizes = [fibreProps.size];
 threshSize = prctile(fibSizes,sizePrctile);
 badFibs = fibSizes < threshSize;
@@ -38,8 +38,8 @@ fibreProps(badFibs) = [];
 %an issue with the way they were saved for some of these data...
 
 %Kappa of fibre orientation distribution
-meanOri = circ_mean([fibreProps.orientation]');
-networkMeasures.order = mean(2*cos([fibreProps.orientation]-meanOri).^2 - 1);
+meanOri = circ_mean(vertcat(fibreProps.localOrientation)*2)/2;
+networkMeasures.order = mean(2*cos(vertcat(fibreProps.localOrientation)-meanOri).^2 - 1);
 
 %Mean and COV of fibre width distribution
 networkMeasures.fibWidMu = mean([fibreProps.width])*dx/widFac;
