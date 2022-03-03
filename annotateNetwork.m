@@ -1,5 +1,5 @@
 function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,dx)
-%ANNOTATENETWORK finds long fibres within the input network (input should
+%ANNOTATETWORK finds long fibres within the input network (input should
 %be in graph format, output by skel2graph3d) based on the morphology
 %of the network and the original labelling of the fibres by the ridge
 %detection algorithm.
