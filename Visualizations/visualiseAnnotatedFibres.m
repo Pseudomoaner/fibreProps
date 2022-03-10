@@ -1,4 +1,4 @@
-function [] = visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,colType,ax)
+function [] = visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,colType,dx,ax)
 %VISUALISEANNOTATEDFIBRES draws and displays a reconstruction of
 %automatically detected and measured fibres in an AFM image.
 %
@@ -19,7 +19,7 @@ function [] = visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,colT
 
 axes(ax)
 
-widReconFac = 10;
+widReconFac = dx*4; %Will display fibres at half measured width.
 
 %% Draw fibres
 

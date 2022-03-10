@@ -1,5 +1,5 @@
-function backProjImg = visualiseAnnotatedNetwork(noteNodes,noteLinks,fibreProps,origZ)
-%VISUALISEANNOTAEDNETWORK allows you to plot the output of the network
+function backProjImg = visualiseEverything(noteNodes,noteLinks,fibreProps,origZ,dx)
+%VISUALISEEVERYTHING allows you to plot the output of the network
 %reconstruction and fibre assignment algorithms to visually ensure
 %accuracy. Plots are the following:
 %   Fig1, left: Plot of the graph-based reconstruction of the fibre
@@ -24,28 +24,31 @@ function backProjImg = visualiseAnnotatedNetwork(noteNodes,noteLinks,fibreProps,
 %       -fibreProps: Measured properties of each fibre, as output by the
 %       measureFibres function.
 %       -origZ: Original heightmap AFM image.
+%       -dx: Pixel size, in nm
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
 %The first figure will be an overlay of the annotated graph on top of the
 %original image
+figure(1)
 subplot(1,2,1)
-ax = gca;
-visualiseAnnotatedNetwork(noteLinks,noteNodes,origZ,ax)
+ax1 = gca;
+visualiseAnnotatedNetwork(noteLinks,noteNodes,origZ,ax1)
 
 %The second figure will plot each node proposed to be a crossing point
+figure(1)
 subplot(1,2,2)
 cla
-ax=gca;
+ax2=gca;
 hold on
-imagesc(ax,origZ)
+imagesc(ax2,origZ)
 colormap('jet')
 axis equal
 axis tight
-ax.XTick = [];
-ax.YTick = [];
-ax.Box = 'on';
-ax.YDir = 'reverse';
+ax2.XTick = [];
+ax2.YTick = [];
+ax2.Box = 'on';
+ax2.YDir = 'reverse';
 
 for n = 1:size(noteNodes,2)
     if numel(noteNodes(n).links) == 4
@@ -71,7 +74,7 @@ for n = 1:size(noteNodes,2)
         end
         
         if ~skip
-            plot(noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
+            plot(ax2,noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
         end
     end
 end
@@ -80,7 +83,7 @@ title('Fibre crossing points')
 
 %The third figure will show each detected fibre 'back projected' to show
 %its projected width
-widReconFac = 10;
+widReconFac = dx*2;
 
 %Reconstruct image showing width of fibers at each detected location
 fibWidImg = zeros(size(origZ));
@@ -104,14 +107,16 @@ dispImg = cat(3,backProjImg*0.75,origZ/max(origZ(:)),backProjImg*0.75);
 
 figure(2)
 subplot(1,2,1)
-imshow(dispImg)
+ax3 = gca;
+imshow(dispImg,'Parent',ax3)
 
 title('Back-projected network')
 
 %The fourth figure will overlay a backprojection of each fibre
+figure(2)
 subplot(1,2,2)
-ax = gca;
+ax4 = gca;
 
-visualiseAnnotatedFibres(fibreProps,noteNodes,flattenedImg,'localOrientation',ax)
+visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,'localOrientation',dx,ax4)
 
 

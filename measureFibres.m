@@ -158,7 +158,7 @@ for F = FInds'
     fibreProps(measInd).size = sum(fibrePx(:))*dx; %Length of the fibre
     fibreProps(measInd).backbone = fibrePx;
     fibreProps(measInd).score = mean(scoreSet);
-    fibreProps(measInd).width = mean(widthSet)*dx;
+    fibreProps(measInd).width = mean(widthSet);
     fibreProps(measInd).branchNo = branchNo;
     fibreProps(measInd).rawInd = F;
     

@@ -1,4 +1,4 @@
-function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImage,dx)
+function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImage,dx,widFac)
 %NETWORKRECONSTRUCTION generates a graph of the input AFM fibre network. In
 %the first stage, a scale-selecting ridge-detection algorithm is used to detect the
 %locations and widths of fibres. The resulting network is then skeletonized
@@ -10,6 +10,9 @@ function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImag
 %       -zImage: The original AFM image, converted from a .txt file
 %       using the txtToMat.m function.
 %       -dx: The spacing (in nm) between pixels in the image.
+%       -widFac: Correction factor used to convert detected fibre widths 
+%       based on the scale of a Gaussian filter) to true widths. Requires
+%       manual calibration.
 %
 %   OUTPUTS:
 %       -outNodes: Structure conforming (mostly) to the formatting of the
@@ -28,17 +31,17 @@ function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImag
 %   Author: Oliver J. Meacock, (c) 2021
 
 %Analysis parameters
-ridgeScale = (8:1:40)/dx; %Scales are in nm; converted to pixels  
-minBranch = 5; %Defines the minimal length of an isolated branch - branches shorter than this are excluded
+ridgeScale = (8:1:30)/dx; %Scales are in nm; converted to pixels  
+minBranch = round(2/dx); %Defines the minimal length of an isolated branch - branches shorter than this are excluded
 
 %Create image of ridges in image, and sekeletonize
-[ridgeImg,Width,Nscores,fibreGroups] = bwRidgeCenterMod(flatImage,ridgeScale);
+[ridgeImg,Width,Nscores,fibreGroups] = bwRidgeCenterMod(flatImage,ridgeScale,dx,widFac);
 fibreImg = bwskel(logical(ridgeImg),'MinBranchLength',minBranch);
 
 %Convert to graph using Skel2Graph3D
 [~,node,link] = Skel2Graph3D(fibreImg,0);
 
-%Reformat links and nodes according to needs of project
+%Reformat links and nodes
 node = rmfield(node,{'comz','ep','ptComz'});
 for l = 1:size(link,2)
     [link(l).comx,link(l).comy] = ind2sub(size(flatImage),link(l).point);

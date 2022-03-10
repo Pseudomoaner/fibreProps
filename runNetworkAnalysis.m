@@ -2,18 +2,18 @@ clear all
 close all
 
 root = 'C:\Users\olijm\Desktop\FibreDetectionDebug';
-inputFiles = {'ponA_skinny_small_image1','ponA_skinny_rotated_image1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
+inputFiles = {'ponA_skinny_small_image1'};%,'ponA_skinny_rotated_image1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
 inputExtension = '.txt';
 outputExtension = '.tif';
 
 visualise = true;
 
-widFac = 5; %Factor by which the measured 'width' of fibres (based on the scale of a Gaussian filter) should be divided to get the real width (in pixels). Needs manual callibration.
-flattenScale = 15; %Scale of the upper DOG filter
-
 for i = 1:size(inputFiles,2)
     [AFMmat,dx] = txtToMat(root,[inputFiles{i},inputExtension]);
-    dx = 0.5; %Need to set to real units once they have been properly recorded
+
+    widFac = 5; %Factor by which the measured 'width' of fibres (based on the scale of a Gaussian filter, in nm) should be divided to get the real width (in nm). Needs manual callibration.
+    flattenScale = 4 / dx; %Scale of the upper DOG filter
+%     dx = 0.5; %Need to set to real units once they have been properly recorded
     
     %First flatten the image
     origZvals = AFMmat(:,:,3) - min(min(AFMmat(:,:,3))); %Sets the smallest value to zero
@@ -21,7 +21,7 @@ for i = 1:size(inputFiles,2)
     flattenedImg = flattenedImg - min(flattenedImg(:)); %Sets the smallest value to zero (again)
     
     %Then extract the fine-scale network
-    [netNodes,netLinks,fibreGroups] = networkReconstruction(flattenedImg,origZvals,dx);
+    [netNodes,netLinks,fibreGroups] = networkReconstruction(flattenedImg,origZvals,dx,widFac);
     
     %Find long fibres directly from network structure
     [noteNodes,noteLinks] = annotateNetwork(netNodes,netLinks,fibreGroups,dx);
@@ -31,7 +31,7 @@ for i = 1:size(inputFiles,2)
     
     if visualise
         %Reconstruct network visualisation to check it looks OK
-        backProjImg = visualiseAnnotatedNetwork(noteNodes,noteLinks,fibreProps.(inputFiles{i}),flattenedImg);
+        backProjImg = visualiseEverything(noteNodes,noteLinks,fibreProps.(inputFiles{i}),flattenedImg,dx);
     end
     
     %Collate measures and save

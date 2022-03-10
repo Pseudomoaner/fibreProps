@@ -20,7 +20,7 @@ function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,dx)
 %   Author: Oliver J. Meacock, (c) 2020
 
 %Analytical parameters
-angSampPts = 10; %Number of points away from node you should sample to determine each link's orientation (local to node)
+angSampPts = round(2/dx); %Number of points away from node you should sample to determine each link's orientation (local to node)
 angThreshHi = deg2rad(60); %A pair of links coming out of a single node must be within pi +- angThreshHi radians of each other not to be cut
 angThreshLo = deg2rad(40); %A pair of links coming out of a single node must be within pi +- angThreshLo radians of each other to be fused into a single fibre
 
@@ -102,15 +102,16 @@ end
 
 %Each link can be associated with only a single fibre...
 fibreInds = bwlabel(fibreGroups,4)';
-miniFibInd = max(fibreInds(:)) + 1;
+miniFibInd = max(fibreInds(:)) + 1; %Ensures mini-fibre indices are all greater than the main fibre indices
 for l = 1:size(inLink,2)
-    indLocs = sub2ind(size(fibreGroups),inLink(l).comy,inLink(l).comx);
-    if numel(indLocs) > 5
-        fibIndList = fibreInds(indLocs);
+    indLocs = sub2ind(size(fibreGroups),inLink(l).comx,inLink(l).comy);
+    if numel(indLocs) > 5 %If link is at least 5 pixels long
+        fibIndList = fibreInds(indLocs); %The indicies associated with this 
         fibIndList(fibIndList == 0) = [];
         
         if sum(fibIndList == mode(fibIndList)) > numel(fibIndList)/2 %If at least half of the points in this link are associated with a fibre in the original ridge-detected image...
             inLink(l).Fibre = mode(fibIndList);
+
         else %Associate link with a new 'mini fibre', unconnected to any other links or nodes.
             inLink(l).Fibre = miniFibInd;
             miniFibInd = miniFibInd+1; 

@@ -37,3 +37,8 @@ dx = (xMat(end,1)-xList(1,1))/size(xMat,1);
 
 %...and store as a single 3D matrix
 AFMmat = cat(3,xMat',yMat',zMat');
+
+%Ensure dx is in the right units (nm)
+if dx < 1e-9 && dx > 1e-12 %Implies units are meters
+    dx = dx*1e9; %Convert to nanometers
+end

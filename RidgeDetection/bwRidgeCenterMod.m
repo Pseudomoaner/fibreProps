@@ -1,4 +1,4 @@
-function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I,  scales)
+function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, dx, widFac)
 %BWRIDGECENTERMOD locates ridges of a given scale in an input grayscale
 %image.
 %
@@ -7,27 +7,34 @@ function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I,  scales)
 %       -scales: The scale (width) of ridges you wish to find in I, in
 %       pixels. Can be given as a vector of values, in which case a sort of
 %       'maximal' ridge magnitude will be calculated across all scales.
+%       -dx: The spacing (in nm) between pixels in the image.
+%       -widFac: Correction factor used to convert detected fibre widths 
+%       based on the scale of a Gaussian filter) to true widths. Requires
+%       manual calibration.
 %
 %   OUTPUTS:
 %       -bwridge: Binary image of ridges in I.
 %       -Width: Spatial scale that gave the maximal response at each
 %       spatial location.
+%       -Nsc: Scores associated with each maximal response scale
+%       -bwridgeCpy: The original image of the fibres as detected by the
+%       ridge-detection algorithm. Useful for reconstructing fibres.
 %
 %   Authors: Joeseph Harvey (c) 2014 and Oliver J. Meacock (c) 2019
 
 %Analytical parameters
-LpThreshFac = 1.5;
-NThreshFac = 0.85; %Originally 1 (22/10/2020)
-minRidgeArea1 = 15;
-minRidgeArea2 = 30;
-maxPoreArea = 20;
-waterThresh = 3;
+LpThreshFac = 1.5; %Ridge strength (Lp) detection threshold scaling factor
+NThreshFac = 0.6; %Ridge score (N) detection threshold scaling factor. Originally 1 (22/10/2020)
+minRidgeArea1 = round(2/(dx^2)); %Ridges in the original ridge-detected image must be at least this large to be included
+minRidgeArea2 = round(4/(dx^2)); %Ridges in the pore-filled image must be at least this large to be included
+maxPoreArea = round(1.5/(dx^2)); %Pores must be at least this large not to be filled in and removed
+waterThresh = 8; %Watershed threshold
 
 % Extract the stationary points of scale-space valleys
 [N,Lp] = im_scalablehess2(-I, scales);
 
-LpThresh = mean(abs(Lp(:)))*LpThreshFac;
-NThresh = mean(N(:))*NThreshFac;
+LpThresh = median(abs(Lp(:)))*LpThreshFac;
+NThresh = median(N(:))*NThreshFac;
 
 nearPeaks = Lp;
 nearPeaks(or(nearPeaks>LpThresh,nearPeaks<-LpThresh)) = nan;
@@ -43,6 +50,7 @@ stationaryPts = and(Adil,Bdil);
 %Find maximal N-scores for each pixels and associated scales
 [Nsc, MaxIdx] = max(N, [], 3);
 Width = scales(MaxIdx);
+Width = Width*dx/widFac;
 
 maxPts = zeros(size(stationaryPts));
 
