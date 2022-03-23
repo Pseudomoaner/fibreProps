@@ -1,9 +1,9 @@
-function [AFMmat,dx] = txtToMat(root,inputFile)
+function [AFMmat,dx] = txtToMat(inputFile)
 %TXTTOMAT converts text format AFM data into a matlab matrix.
 %
 %   INPUTS:
-%       -root: The root directory analysis is being performed in.
-%       -inputFile: The name of the specific file you want to analyse
+%       -inputFile: The name of the specific file (including root
+%       directory) you want to analyse.
 %
 %   OUTPUTS:
 %       -AFMmat: The AFM data in Matlab matrix format.
@@ -13,7 +13,7 @@ function [AFMmat,dx] = txtToMat(root,inputFile)
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
-fileID = fopen(fullfile(root,inputFile));
+fileID = fopen(inputFile);
 C = textscan(fileID,'%f %f %f','Delimiter',' ','CommentStyle','#');
 fclose(fileID);
 
@@ -41,4 +41,6 @@ AFMmat = cat(3,xMat',yMat',zMat');
 %Ensure dx is in the right units (nm)
 if dx < 1e-9 && dx > 1e-12 %Implies units are meters
     dx = dx*1e9; %Convert to nanometers
+elseif dx < 0.1 && dx > 0.0001 %Implies units are micrometers
+    dx = dx*1e3;
 end

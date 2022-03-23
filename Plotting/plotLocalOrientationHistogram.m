@@ -8,7 +8,7 @@ function [] = plotLocalOrientationHistogram(fibreProps)
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
-noBins = 36;
+noBins = 18;
 
 angCollection = vertcat(fibreProps.localOrientation);
 

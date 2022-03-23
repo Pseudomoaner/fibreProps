@@ -20,7 +20,7 @@ function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,dx)
 %   Author: Oliver J. Meacock, (c) 2020
 
 %Analytical parameters
-angSampPts = round(2/dx); %Number of points away from node you should sample to determine each link's orientation (local to node)
+angSampPts = 6; %Number of points away from node you should sample to determine each link's orientation (local to node)
 angThreshHi = deg2rad(60); %A pair of links coming out of a single node must be within pi +- angThreshHi radians of each other not to be cut
 angThreshLo = deg2rad(40); %A pair of links coming out of a single node must be within pi +- angThreshLo radians of each other to be fused into a single fibre
 
@@ -120,6 +120,7 @@ for l = 1:size(inLink,2)
         inLink(l).Fibre = miniFibInd;
         miniFibInd = miniFibInd+1;
     end
+    inLink(l).origFib = inLink(l).Fibre; %Fibre label that remains unchanged during downstream analyses- useful for debugging purposes
 end
 
 %Nodes can be associated with multiple fibres

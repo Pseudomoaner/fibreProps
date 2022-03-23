@@ -38,49 +38,50 @@ visualiseAnnotatedNetwork(noteLinks,noteNodes,origZ,ax1)
 %The second figure will plot each node proposed to be a crossing point
 figure(1)
 subplot(1,2,2)
-cla
-ax2=gca;
-hold on
-imagesc(ax2,origZ)
-colormap('jet')
-axis equal
-axis tight
-ax2.XTick = [];
-ax2.YTick = [];
-ax2.Box = 'on';
-ax2.YDir = 'reverse';
-
-for n = 1:size(noteNodes,2)
-    if numel(noteNodes(n).links) == 4
-        skip = false;
-        %Ensure that this node isn't connected to any (nearby) terminal nodes
-        for l = 1:4
-            if numel(noteNodes(noteNodes(n).conn(l)).conn) == 1 && numel(noteLinks(noteNodes(n).links(l)).point) < 15
-                skip = true;
-            end
-        end
-        
-        fibList = zeros(4,1);
-        for l = 1:4
-            %Also ensure that these are two annotated fibres that are crossing
-            if numel(noteLinks(noteNodes(n).links(l)).Fibre) ~= 1
-                skip = true;
-            else
-                fibList(l) = noteLinks(noteNodes(n).links(l)).Fibre;
-            end            
-        end
-        if numel(unique(fibList)) ~= 2
-            skip = true;
-        end
-        
-        if ~skip
-            plot(ax2,noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
-        end
-    end
-end
-
-title('Fibre crossing points')
-
+ax2 = gca;
+visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,'Length',dx,ax2)
+% cla
+% hold on
+% imagesc(ax2,origZ)
+% colormap('jet')
+% axis equal
+% axis tight
+% ax2.XTick = [];
+% ax2.YTick = [];
+% ax2.Box = 'on';
+% ax2.YDir = 'reverse';
+% 
+% for n = 1:size(noteNodes,2)
+%     if numel(noteNodes(n).links) == 4
+%         skip = false;
+%         %Ensure that this node isn't connected to any (nearby) terminal nodes
+%         for l = 1:4
+%             if numel(noteNodes(noteNodes(n).conn(l)).conn) == 1 && numel(noteLinks(noteNodes(n).links(l)).point) < 15
+%                 skip = true;
+%             end
+%         end
+%         
+%         fibList = zeros(4,1);
+%         for l = 1:4
+%             %Also ensure that these are two annotated fibres that are crossing
+%             if numel(noteLinks(noteNodes(n).links(l)).Fibre) ~= 1
+%                 skip = true;
+%             else
+%                 fibList(l) = noteLinks(noteNodes(n).links(l)).Fibre;
+%             end            
+%         end
+%         if numel(unique(fibList)) ~= 2
+%             skip = true;
+%         end
+%         
+%         if ~skip
+%             plot(ax2,noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
+%         end
+%     end
+% end
+% 
+% title('Fibre crossing points')
+% 
 %The third figure will show each detected fibre 'back projected' to show
 %its projected width
 widReconFac = dx*2;
@@ -102,21 +103,21 @@ for w = widSet'
     currProj = imdilate(currLines,se);
     backProjImg = or(backProjImg,currProj);
 end
+% 
+% dispImg = cat(3,backProjImg*0.75,origZ/max(origZ(:)),backProjImg*0.75);
+% 
+% figure(2)
+% subplot(1,2,1)
+% ax3 = gca;
+% imshow(dispImg,'Parent',ax3)
+% 
+% title('Back-projected network')
 
-dispImg = cat(3,backProjImg*0.75,origZ/max(origZ(:)),backProjImg*0.75);
-
-figure(2)
-subplot(1,2,1)
-ax3 = gca;
-imshow(dispImg,'Parent',ax3)
-
-title('Back-projected network')
-
-%The fourth figure will overlay a backprojection of each fibre
-figure(2)
-subplot(1,2,2)
-ax4 = gca;
-
-visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,'localOrientation',dx,ax4)
+% %The fourth figure will overlay a backprojection of each fibre
+% figure(2)
+% subplot(1,2,2)
+% ax4 = gca;
+% 
+% visualiseAnnotatedFibres(fibreProps,noteNodes,noteLinks,origZ,'Length',dx,ax4)
 
 

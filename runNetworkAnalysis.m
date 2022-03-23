@@ -1,8 +1,8 @@
 clear all
 close all
 
-root = 'C:\Users\olijm\Desktop\FibreDetectionDebug';
-inputFiles = {'ponA_skinny_small_image1'};%,'ponA_skinny_rotated_image1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
+root = 'C:\Users\olijm\Desktop\Laia analysis\MachineLearnTest';
+inputFiles = {'I2_An'};%,'ponA_skinny_rotated_image1'};%{'I6_Ori','WT','I1_An','I2_An','I3_An','I4_An','I5_An','I1_Ori','I2_Ori','I3_Ori','I4_Ori','I6_Ori'};
 inputExtension = '.txt';
 outputExtension = '.tif';
 
@@ -12,7 +12,7 @@ for i = 1:size(inputFiles,2)
     [AFMmat,dx] = txtToMat(root,[inputFiles{i},inputExtension]);
 
     widFac = 5; %Factor by which the measured 'width' of fibres (based on the scale of a Gaussian filter, in nm) should be divided to get the real width (in nm). Needs manual callibration.
-    flattenScale = 4 / dx; %Scale of the upper DOG filter
+    flattenScale = max(4/dx, 16); %Scale of the upper DOG filter
 %     dx = 0.5; %Need to set to real units once they have been properly recorded
     
     %First flatten the image

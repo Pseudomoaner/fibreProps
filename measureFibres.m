@@ -152,7 +152,7 @@ for F = FInds'
 %             fibreProps(measInd).localOrientation(i) = atan(1/fitLine(1));
         end
     else
-        fibreProps.localOrientation = NaN;
+        fibreProps(measInd).localOrientation = NaN;
     end
     
     fibreProps(measInd).size = sum(fibrePx(:))*dx; %Length of the fibre

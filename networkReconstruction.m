@@ -31,7 +31,9 @@ function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImag
 %   Author: Oliver J. Meacock, (c) 2021
 
 %Analysis parameters
-ridgeScale = (8:1:30)/dx; %Scales are in nm; converted to pixels  
+minScale = round(max(15,10/dx)); %Ensures the minimum scale is at least 12 pixels - ridge detection is pretty unreliable below this value
+maxScale = round(max(45,30/dx));
+ridgeScale = linspace(minScale,maxScale,20); %Scales are in nm; converted to pixels  
 minBranch = round(2/dx); %Defines the minimal length of an isolated branch - branches shorter than this are excluded
 
 %Create image of ridges in image, and sekeletonize

@@ -231,7 +231,36 @@ for i = 1:size(inLink,2)
     inLink(i).n2 = inLink(i).n2 - sum(badNodes <= inLink(i).n2);
 end
 
-%% Part 5: Remove all but one link between identical nodes (e.g. cases where both o^o and o-o are true)
+%% Part 5: Remove links that connect back to a single node
+%Locate the indices of guilty links
+nList = zeros(size(inLink,2),2);
+for l = 1:size(inLink,2)
+    nList(l,1) = inLink(l).n1;
+    nList(l,2) = inLink(l).n2;
+end
+
+badLinks = find(nList(:,1) == nList(:,2));
+
+%Remove bad links
+inLink(badLinks) = [];
+
+%Reindex node links, and remove any necessary links
+for i = 1:size(inNode,2)
+    remLinks = [];
+    for j = 1:size(inNode(i).links,2)
+        if sum(badLinks == inNode(i).links(j)) == 1
+            remLinks = [remLinks;j];
+        else
+            inNode(i).links(j) = inNode(i).links(j) - sum(badLinks < inNode(i).links(j));
+            possNds = [inLink(inNode(i).links(j)).n1,inLink(inNode(i).links(j)).n2];
+            inNode(i).conn(j) = possNds(possNds ~= i);
+        end
+    end
+    inNode(i).links(remLinks) = [];
+    inNode(i).conn(remLinks) = [];
+end
+
+%% Part 6: Remove all but one link between identical nodes (e.g. cases where both o^o and o-o are true)
 %Strictly speaking, these instances could correspond to real situations. But
 %greatly simplifies downstream analysis if you chuck out the rare instances
 %where this happens.
@@ -265,7 +294,7 @@ for i = 1:size(inNode,2)
     inNode(i).conn(remLinks) = [];
 end
 
-%% Part 6: Repeat double link node removal, now 'eyes' have been removed
+%% Part 7: Repeat double link node removal, now 'eyes' have been removed
 badNodes = [];
 for i = 1:size(inNode,2)
     if numel(inNode(i).links) == 2
