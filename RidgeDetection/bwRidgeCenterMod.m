@@ -1,4 +1,4 @@
-function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, dx, widFac)
+function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, waterThresh, dx, widFac)
 %BWRIDGECENTERMOD locates ridges of a given scale in an input grayscale
 %image.
 %
@@ -7,6 +7,7 @@ function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, dx, widFac
 %       -scales: The scale (width) of ridges you wish to find in I, in
 %       pixels. Can be given as a vector of values, in which case a sort of
 %       'maximal' ridge magnitude will be calculated across all scales.
+%       -waterThresh: The inclusion threshold for the watershed seeds.
 %       -dx: The spacing (in nm) between pixels in the image.
 %       -widFac: Correction factor used to convert detected fibre widths 
 %       based on the scale of a Gaussian filter) to true widths. Requires
@@ -28,7 +29,6 @@ NThreshFac = 0.6; %Ridge score (N) detection threshold scaling factor. Originall
 minRidgeArea1 = round(2/(dx^2)); %Ridges in the original ridge-detected image must be at least this large to be included
 minRidgeArea2 = round(4/(dx^2)); %Ridges in the pore-filled image must be at least this large to be included
 maxPoreArea = round(1.5/(dx^2)); %Pores must be at least this large not to be filled in and removed
-waterThresh = 5; %Watershed threshold
 
 % Extract the stationary points of scale-space valleys
 [N,Lp] = im_scalablehess2(-I, scales);

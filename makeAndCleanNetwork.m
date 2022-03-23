@@ -1,18 +1,13 @@
-function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImage,dx,widFac)
-%NETWORKRECONSTRUCTION generates a graph of the input AFM fibre network. In
-%the first stage, a scale-selecting ridge-detection algorithm is used to detect the
-%locations and widths of fibres. The resulting network is then skeletonized
-%and converted to a graph using the Skel2Graph3D function. Edits are now
-%made to this graph to tidy it up.
+function [outNodes,outLinks] = makeAndCleanNetwork(fibreImg,zImage,Width,Nscores)
+%MAKEANDCLEANNETWORK generates a graph of the input AFM fibre network. A 
+%ridge-based input is converted to a graph the Skel2Graph3D function. Edits
+%are now made to this graph to tidy it up.
 %
 %   INPUTS:
-%       -flatImage: The flattened version of-
+%       -fibreImg: The ridge-based fibre network estimate, calculated using
+%       bwRidgeCenterMod.
 %       -zImage: The original AFM image, converted from a .txt file
 %       using the txtToMat.m function.
-%       -dx: The spacing (in nm) between pixels in the image.
-%       -widFac: Correction factor used to convert detected fibre widths 
-%       based on the scale of a Gaussian filter) to true widths. Requires
-%       manual calibration.
 %
 %   OUTPUTS:
 %       -outNodes: Structure conforming (mostly) to the formatting of the
@@ -23,23 +18,8 @@ function [outNodes,outLinks,fibreGroups] = networkReconstruction(flatImage,zImag
 %       link oubput of the Skel2Graph3D function. Contains the information 
 %       (paths, heights, associated nodes etc.) about the links in the
 %       reconstruted network graph. 
-%       -fibreGroup: Image of the same size as the flatImage/zImage inputs,
-%       containing labelled segmentations of the original fibres as
-%       detected by the ridge detection process. Used later for assigning
-%       links and nodes to different fibres.
 %
 %   Author: Oliver J. Meacock, (c) 2021
-
-%Analysis parameters
-minScale = round(max(15,10/dx)); %Ensures the minimum scale is at least 12 pixels - ridge detection is pretty unreliable below this value
-maxScale = round(max(45,30/dx));
-ridgeScale = linspace(minScale,maxScale,20); %Scales are in nm; converted to pixels  
-minBranch = round(2/dx); %Defines the minimal length of an isolated branch - branches shorter than this are excluded
-waterThresh = 5;
-
-%Create image of ridges in image, and sekeletonize
-[ridgeImg,Width,Nscores,fibreGroups] = bwRidgeCenterMod(flatImage,ridgeScale,waterThresh,dx,widFac);
-fibreImg = bwskel(logical(ridgeImg),'MinBranchLength',minBranch);
 
 %Convert to graph using Skel2Graph3D
 [~,node,link] = Skel2Graph3D(fibreImg,0);
@@ -47,7 +27,7 @@ fibreImg = bwskel(logical(ridgeImg),'MinBranchLength',minBranch);
 %Reformat links and nodes
 node = rmfield(node,{'comz','ep','ptComz'});
 for l = 1:size(link,2)
-    [link(l).comx,link(l).comy] = ind2sub(size(flatImage),link(l).point);
+    [link(l).comx,link(l).comy] = ind2sub(size(zImage),link(l).point);
 end
 
 %This function 'heals' the graph, removing individual nodes that have only

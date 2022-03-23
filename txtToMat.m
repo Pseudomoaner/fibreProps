@@ -43,4 +43,10 @@ if dx < 1e-9 && dx > 1e-12 %Implies units are meters
     dx = dx*1e9; %Convert to nanometers
 elseif dx < 0.1 && dx > 0.0001 %Implies units are micrometers
     dx = dx*1e3;
+elseif dx > 1 && dx < 10 %Implies units are Angstroms
+    dx = dx/10;
+end
+
+if dx < 0.2
+    error('Spatial scale too small for analysis!')
 end
