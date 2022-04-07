@@ -1,4 +1,4 @@
-function fibreProps = measureFibres(inNodes,inLinks,origImg,dx)
+function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,widthCalibration)
 %MEASUREFIBRES measures the properties of fibres detected in the given
 %input image.
 %
@@ -9,13 +9,18 @@ function fibreProps = measureFibres(inNodes,inLinks,origImg,dx)
 %       information about the network graph's nodes.
 %       -origImg: The original AFM image, as output by txtToMat.
 %       -dx: The spacing between adjacent pixels, in nm.
+%       -widthCalibration: Factor by which to upscale detected widths to
+%       account for difference between automated and manually-assigned
+%       measurements (as the 'width' being automatically detected is a
+%       slightly weird Gaussian-kernal-width thing). Needs manual
+%       calibration.
 %
 %   OUTPUTS:
 %       -fibreProps: Measured properties of the input fibres. Structure
 %       consists of the following fields:
 %           -orientation: Angle made by fibre relative to image reference 
 %           frame (in radians, -pi/2 to pi/2)
-%           =midPoint: vector specifying the midpoint of the fibre
+%           -midPoint: vector specifying the midpoint of the fibre
 %           -midWidth: Measured width of the fibre at the midpoint position
 %           (in pixels)
 %           -size: Length of the fibre (in nm)
@@ -97,7 +102,7 @@ for F = FInds'
         foundFlag = false;
         for l = 1:size(inLinks,2)
             if sum(inLinks(l).point == midInd) == 1
-                fibreProps(measInd).midwidth = inLinks(l).widths(logical(inLinks(l).point == midInd));
+                fibreProps(measInd).midwidth = inLinks(l).widths(logical(inLinks(l).point == midInd))*dx*widthCalibration;
                 foundFlag = true;
                 break
             end
@@ -106,7 +111,7 @@ for F = FInds'
         if ~foundFlag
             for n = 1:size(inNodes,2)
                 if sum(inNodes(n).idx == midInd) == 1
-                    fibreProps(measInd).midwidth = inNodes(n).widths(inNodes(n).idx == midInd);
+                    fibreProps(measInd).midwidth = inNodes(n).widths(inNodes(n).idx == midInd)*dx*widthCalibration;
                     foundFlag = true;
                     break
                 end
@@ -133,7 +138,7 @@ for F = FInds'
 %     fitLine = polyfit(fibrePxX,fibrePxY,1);
 %     fibreProps(measInd).meanOrientation = atan(fitLine(1));
 
-    %Half-width of moving window used to calculate local fibre orientatino
+    %Half-width of moving window used to calculate local fibre orientation
     oriWindHalfWidth = 10;
     if ~isnan(fibreProps(measInd).backList)
         fibreProps(measInd).localOrientation = zeros(size(fibreProps(measInd).backList,1),1);
@@ -158,7 +163,7 @@ for F = FInds'
     fibreProps(measInd).size = sum(fibrePx(:))*dx; %Length of the fibre
     fibreProps(measInd).backbone = fibrePx;
     fibreProps(measInd).score = mean(scoreSet);
-    fibreProps(measInd).width = mean(widthSet);
+    fibreProps(measInd).width = mean(widthSet)*dx*widthCalibration;
     fibreProps(measInd).branchNo = branchNo;
     fibreProps(measInd).rawInd = F;
     

@@ -1,4 +1,4 @@
-function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, waterThresh, dx, widFac)
+function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, waterThresh, dx)
 %BWRIDGECENTERMOD locates ridges of a given scale in an input grayscale
 %image.
 %
@@ -9,14 +9,11 @@ function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, waterThres
 %       'maximal' ridge magnitude will be calculated across all scales.
 %       -waterThresh: The inclusion threshold for the watershed seeds.
 %       -dx: The spacing (in nm) between pixels in the image.
-%       -widFac: Correction factor used to convert detected fibre widths 
-%       based on the scale of a Gaussian filter) to true widths. Requires
-%       manual calibration.
 %
 %   OUTPUTS:
 %       -bwridge: Binary image of ridges in I.
 %       -Width: Spatial scale that gave the maximal response at each
-%       spatial location.
+%       spatial location. In pixels.
 %       -Nsc: Scores associated with each maximal response scale
 %       -bwridgeCpy: The original image of the fibres as detected by the
 %       ridge-detection algorithm. Useful for reconstructing fibres.
@@ -50,7 +47,6 @@ stationaryPts = and(Adil,Bdil);
 %Find maximal N-scores for each pixels and associated scales
 [Nsc, MaxIdx] = max(N, [], 3);
 Width = scales(MaxIdx);
-Width = Width*dx/widFac;
 
 maxPts = zeros(size(stationaryPts));
 
