@@ -20,6 +20,8 @@ function [bwridge,Width,Nsc,bwridgeCpy] = bwRidgeCenterMod(I, scales, waterThres
 %
 %   Authors: Joeseph Harvey (c) 2014 and Oliver J. Meacock (c) 2019
 
+progressbar(0)
+
 %Analytical parameters
 LpThreshFac = 1.5; %Ridge strength (Lp) detection threshold scaling factor
 NThreshFac = 0.6; %Ridge score (N) detection threshold scaling factor. Originally 1 (22/10/2020)
@@ -29,6 +31,8 @@ maxPoreArea = round(1.5/(dx^2)); %Pores must be at least this large not to be fi
 
 % Extract the stationary points of scale-space valleys
 [N,Lp] = im_scalablehess2(-I, scales);
+
+progressbar(0.2)
 
 LpThresh = median(abs(Lp(:)))*LpThreshFac;
 NThresh = median(N(:))*NThreshFac;
@@ -59,6 +63,8 @@ for i = 1:size(maxPts,1)
     end
 end
 
+progressbar(0.4)
+
 bwridge3D = and(maxPts,stationaryPts);
 bwridge = sum(bwridge3D,3);
 bwridge = bwareaopen(bwridge,minRidgeArea1,4);
@@ -71,8 +77,12 @@ distW = watershed(distA);
 
 bwridge(distW == 0) = 1;
 
+progressbar(0.6)
+
 %Clean up ridges
 bwridge = ~bwareaopen(~bwridge,maxPoreArea,4);
 bwridge = bwareaopen(bwridge,minRidgeArea2,4);
 bwridge = bwmorph(bwridge,'thin',Inf);
 bwridge = bwskel(imclose(bwridge,strel('disk',1)));
+
+progressbar(1)

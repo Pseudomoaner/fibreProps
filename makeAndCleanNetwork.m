@@ -21,8 +21,12 @@ function [outNodes,outLinks] = makeAndCleanNetwork(fibreImg,zImage,Width,Nscores
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
+progressbar(0)
+
 %Convert to graph using Skel2Graph3D
 [~,node,link] = Skel2Graph3D(fibreImg,0);
+
+progressbar(0.2)
 
 %Reformat links and nodes
 node = rmfield(node,{'comz','ep','ptComz'});
@@ -35,9 +39,13 @@ end
 %fault in the Skel2Graph3D code that it spits these out.
 [healNode,healLink] = healNetwork(node,link,false);
 
+progressbar(0.4)
+
 %This function 'zips together' pairs of nodes that are too close together
 %for the link between them to be reliably analysed
 [zipNode,zipLink] = zipNetwork(healNode,healLink,zImage);
+
+progressbar(0.6)
 
 %We also want to associate the original z-values to links and nodes.
 %Inherit from original image.
@@ -58,3 +66,5 @@ end
 
 outNodes = zipNode;
 outLinks = zipLink;
+
+progressbar(1)

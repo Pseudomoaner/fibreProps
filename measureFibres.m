@@ -37,6 +37,8 @@ function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,widthCalibration)
 %
 %   Author: Oliver J. Meacock
 
+progressbar(0)
+
 %Find the list of fibre indices that are actually represented in this
 %dataset
 FInds = [];
@@ -122,7 +124,7 @@ for F = FInds'
             fibreProps(measInd).midwidth = nan(1); %Couldn't find the midpoint for some reason
         end
     else
-        fibreProps(measInd).backList = nan(1);
+        fibreProps(measInd).backList = nan(1,2);
         fibreProps(measInd).midpoint = nan(1,2);
         fibreProps(measInd).midwidth = nan(1);
     end
@@ -161,11 +163,14 @@ for F = FInds'
     end
     
     fibreProps(measInd).size = sum(fibrePx(:))*dx; %Length of the fibre
-    fibreProps(measInd).backbone = fibrePx;
     fibreProps(measInd).score = mean(scoreSet);
     fibreProps(measInd).width = mean(widthSet)*dx*widthCalibration;
     fibreProps(measInd).branchNo = branchNo;
     fibreProps(measInd).rawInd = F;
     
     measInd = measInd + 1;
+
+    progressbar(measInd/numel(FInds))
 end
+
+progressbar(1)

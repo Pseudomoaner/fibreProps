@@ -47,21 +47,24 @@ switch colType
         %Sort fibres by a value associated with them (length, width etc.)
         fibScores = zeros(size(fibreProps));
         for F = 1:size(fibreProps,2)
-            fibScores(F) = sum(fibreProps(F).backbone(:));
+            fibScores(F) = size(fibreProps(F).backList,1);
         end
         [sortFibScores,order] = sort(fibScores);
 
         for F = round(size(sortFibScores,2)*showFracLo)+1:round(size(sortFibScores,2)*showFracHi) %Loop through fibres
-            if ~isnan(sortFibScores(F)) %NaN for any fibres that weren't associated with links
+            if sortFibScores(F) > 1 %1 for any fibres that weren't associated with links
                 currCInd = ceil(((sortFibScores(F)-min(sortFibScores))/(max(sortFibScores)-min(sortFibScores)))*size(cmap,1));
                 currCInd = min(currCInd,size(cmap,1));
                 currCInd = max(currCInd,1);
 
                 cVals = cmap(currCInd,:);
                 Find = order(F);
+                
+                backboneImg = zeros(size(origZ));
+                backboneImg(sub2ind(size(origZ),fibreProps(Find).backList(:,1),fibreProps(Find).backList(:,2))) = 1;
 
                 se = strel('disk',round(fibreProps(Find).width/widReconFac));
-                currInds = logical(imdilate(fibreProps(Find).backbone',se));
+                currInds = logical(imdilate(backboneImg',se));
 
                 rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                 gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
@@ -73,15 +76,18 @@ switch colType
         fibScores = [fibreProps(F).meanOrientation];
 
         for F = 1:size(fibreProps,2)
-            if ~isnan(fibScores(F))
+            if fibScores(F) > 1
                 currCInd = ceil(((fibreProps(F).meanOrientation(i)+pi/2)/pi)*size(cmap,1));
                 currCInd = min(currCInd,size(cmap,1));
                 currCInd = max(currCInd,1);
 
                 cVals = cmap(currCInd,:);
 
+                backboneImg = zeros(size(origZ));
+                backboneImg(sub2ind(size(origZ),fibreProps(F).backList(:,1),fibreProps(F).backList(:,2))) = 1;
+
                 se = strel('disk',round(fibreProps(F).width/widReconFac));
-                currInds = logical(imdilate(fibreProps(F).backbone',se));
+                currInds = logical(imdilate(backboneImg',se));
 
                 rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                 gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
@@ -99,12 +105,9 @@ switch colType
 
                     cVals = cmap(currCInd,:);
                     
-                    xLoc = fibreProps(F).backList(i,1);
-                    yLoc = fibreProps(F).backList(i,2);
-
-                    currInds = zeros(size(fibreProps(F).backbone'));
-                    currInds(yLoc,xLoc) = 1;
-                    currInds = logical(imdilate(currInds,se));
+                    backboneImg = zeros(size(origZ));
+                    backboneImg(sub2ind(size(origZ),fibreProps(F).backList(:,1),fibreProps(F).backList(:,2))) = 1;
+                    currInds = logical(imdilate(backboneImg,se));
 
                     rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                     gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
