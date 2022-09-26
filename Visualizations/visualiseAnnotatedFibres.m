@@ -29,7 +29,7 @@ gCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 bCh = (origZ-min(origZ(:)))/(max(origZ(:))-min(origZ(:)));
 
 switch colType
-    case {'localOrientation','globalOrientation'}
+    case {'localOrientation','meanOrientation'}
         cmap = colormap('hsv'); %For angular variables
     case 'Length'
         cmap = colormap('jet'); %For linear variables
@@ -42,7 +42,7 @@ switch colType
         %Sort fibres by a value associated with them (length, width etc.)
         fibScores = zeros(size(fibreProps));
         for F = 1:size(fibreProps,2)
-            fibScores(F) = sum(fibreProps(F).backbone(:));
+            fibScores(F) = size(fibreProps(F).backList,1);
         end
         [sortFibScores,order] = sort(fibScores);
 
@@ -65,18 +65,21 @@ switch colType
         end
     case 'meanOrientation'
         %Concateanate fibre scores
-        fibScores = [fibreProps(F).meanOrientation];
+        fibScores = [fibreProps(:).meanOrientation];
 
         for F = 1:size(fibreProps,2)
-            if ~isnan(fibScores(F))
-                currCInd = ceil(((fibreProps(F).meanOrientation(i)+pi/2)/pi)*size(cmap,1));
+            if ~isnan(fibreProps(F).backList(1))
+                currCInd = ceil(((fibreProps(F).meanOrientation+pi/2)/pi)*size(cmap,1));
                 currCInd = min(currCInd,size(cmap,1));
                 currCInd = max(currCInd,1);
 
                 cVals = cmap(currCInd,:);
 
                 se = strel('disk',round(fibreProps(F).width/widReconFac));
-                currInds = logical(imdilate(fibreProps(F).backbone',se));
+                
+                backImg = zeros(size(origZ));
+                backImg(sub2ind(size(origZ),fibreProps(F).backList(:,1),fibreProps(F).backList(:,2))) = 1;
+                currInds = logical(imdilate(backImg',se));
 
                 rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                 gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
@@ -84,9 +87,9 @@ switch colType
             end
         end
     case 'localOrientation' %Rather expansive for what it does... may be able to improve
+        [xGrid,yGrid] = meshgrid(1:size(origZ,1),1:size(origZ,2));
         for F = 1:size(fibreProps,2)
             if sum(isnan(fibreProps(F).localOrientation)) == 0
-                se = strel('disk',round(fibreProps(F).width/widReconFac));
                 for i = 1:size(fibreProps(F).localOrientation,1)
                     currCInd = ceil(((fibreProps(F).localOrientation(i)+pi/2)/pi)*size(cmap,1));
                     currCInd = min(currCInd,size(cmap,1));
@@ -97,15 +100,15 @@ switch colType
                     xLoc = fibreProps(F).backList(i,1);
                     yLoc = fibreProps(F).backList(i,2);
 
-                    currInds = zeros(size(fibreProps(F).backbone'));
-                    currInds(yLoc,xLoc) = 1;
-                    currInds = logical(imdilate(currInds,se));
+                    localWidth = round(fibreProps(F).width/widReconFac);
+                    currInds = sqrt((xGrid-xLoc).^2 + (yGrid-yLoc).^2) < localWidth; 
 
                     rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                     gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
                     bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
                 end
             end
+            disp(['F is ',num2str(F),' of ',num2str(size(fibreProps,2)),'.'])
         end
 end
 
@@ -116,40 +119,40 @@ hold 'on'
 
 %% Draw fibre-fibre crossing points
 
-for n = 1:size(noteNodes,2)
-    if numel(noteNodes(n).links) == 4
-        skip = false;
-        %Ensure that this node isn't connected to any (nearby) terminal nodes
-        for l = 1:4
-            if numel(noteNodes(noteNodes(n).conn(l)).conn) == 1 && numel(noteLinks(noteNodes(n).links(l)).point) < 15
-                skip = true;
-            end
-        end
-        
-        fibList = zeros(4,1);
-        for l = 1:4
-            %Also ensure that these are two annotated fibres that are crossing
-            if numel(noteLinks(noteNodes(n).links(l)).Fibre) ~= 1
-                skip = true;
-            else
-                fibList(l) = noteLinks(noteNodes(n).links(l)).Fibre;
-            end            
-        end
-
-        if numel(unique(fibList)) ~= 2
-            skip = true;
-        end
-        
-        if ~skip
-            plot(ax,noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
-        end
-    end
-end
+% for n = 1:size(noteNodes,2)
+%     if numel(noteNodes(n).links) == 4
+%         skip = false;
+%         %Ensure that this node isn't connected to any (nearby) terminal nodes
+%         for l = 1:4
+%             if numel(noteNodes(noteNodes(n).conn(l)).conn) == 1 && numel(noteLinks(noteNodes(n).links(l)).point) < 15
+%                 skip = true;
+%             end
+%         end
+%         
+%         fibList = zeros(4,1);
+%         for l = 1:4
+%             %Also ensure that these are two annotated fibres that are crossing
+%             if numel(noteLinks(noteNodes(n).links(l)).Fibre) ~= 1
+%                 skip = true;
+%             else
+%                 fibList(l) = noteLinks(noteNodes(n).links(l)).Fibre;
+%             end            
+%         end
+% 
+%         if numel(unique(fibList)) ~= 2
+%             skip = true;
+%         end
+%         
+%         if ~skip
+%             plot(ax,noteNodes(n).ptComx,noteNodes(n).ptComy,'o','MarkerFaceColor','k','MarkerEdgeColor','w')
+%         end
+%     end
+% end
 
 %% Display fibre indices
 
-for F = 1:size(fibreProps,2)
-    text(ax,fibreProps(F).midpoint(1),fibreProps(F).midpoint(2),['F',num2str(F)])
-end
+% for F = 1:size(fibreProps,2)
+%     text(ax,fibreProps(F).midpoint(1),fibreProps(F).midpoint(2),['F',num2str(F)])
+% end
 
 title('Back-projected fibres')

@@ -1,27 +1,25 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="617339366" file="C:\Users\olijm\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\olijm\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2955463282" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
     <param.appname>fibreFinder</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
     <param.company>University of Lausanne</param.company>
     <param.icon />
     <param.icons />
-    <param.summary />
+    <param.summary>Prototype detection software for detecting fibres in AFM peptidoglycan images.</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\olijm\AppData\Local\Temp\tp7a3b8907_baec_477c_a2aa_a3df9db92dc9.png</param.screenshot>
-    <param.version>1.0</param.version>
+    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp7e8a7160_4d8e_41d7_9b68_156caa442521.png</param.screenshot>
+    <param.version>0.0</param.version>
     <param.products.name />
     <param.products.id />
     <param.products.version />
     <param.platforms />
-    <param.output>C:\Users\olijm\Desktop\Laia analysis</param.output>
+    <param.output>C:\Users\omeacock\Desktop</param.output>
     <param.guid>16f5e268-c709-499a-bded-33110b7f9c8e</param.guid>
     <unset>
       <param.icon />
       <param.icons />
-      <param.summary />
       <param.description />
-      <param.version />
       <param.products.name />
       <param.products.id />
       <param.products.version />
@@ -38,6 +36,7 @@
       <file>${PROJECT_ROOT}\makeAndCleanNetwork.m</file>
       <file>${PROJECT_ROOT}\matchNodeAndLinkEnd.m</file>
       <file>${PROJECT_ROOT}\measureFibres.m</file>
+      <file>${PROJECT_ROOT}\Progress Bar\progressbar.m</file>
       <file>${PROJECT_ROOT}\RidgeDetection\bwRidgeCenterMod.m</file>
       <file>${PROJECT_ROOT}\RidgeDetection\im_curvegrad2.m</file>
       <file>${PROJECT_ROOT}\RidgeDetection\im_gradflt2.m</file>
@@ -49,6 +48,7 @@
       <file>${PROJECT_ROOT}\skel2graph3d\pk_get_nh_idx.m</file>
       <file>${PROJECT_ROOT}\skel2graph3d\Skel2Graph3D.m</file>
       <file>${PROJECT_ROOT}\txtToMat.m</file>
+      <file>${PROJECT_ROOT}\Visualizations\displayScaleBar.m</file>
       <file>${PROJECT_ROOT}\Visualizations\visualiseAnnotatedFibresGUI.m</file>
       <file>${PROJECT_ROOT}\Visualizations\visualiseAnnotatedNetworkGUI.m</file>
       <file>${PROJECT_ROOT}\zipNetwork.m</file>
@@ -56,12 +56,25 @@
     <fileset.resources />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\olijm\Desktop" name="Laia analysis" optional="false">C:\Users\olijm\Desktop\Laia analysis</file>
+      <file location="C:\Users\omeacock" name="Desktop" optional="false">C:\Users\omeacock\Desktop</file>
     </build-deliverables>
     <workflow />
     <matlab>
       <root>C:\Program Files\MATLAB\R2021b</root>
-      <toolboxes />
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
     </matlab>
     <platform>
       <unix>false</unix>
