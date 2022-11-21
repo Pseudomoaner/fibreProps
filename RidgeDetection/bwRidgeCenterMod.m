@@ -68,11 +68,11 @@ progressbar(0.4)
 bwridge3D = and(maxPts,stationaryPts);
 bwridge = sum(bwridge3D,3);
 bwridge = bwareaopen(bwridge,minRidgeArea1,4);
-bwridgeCpy = bwridge; %Copy that will be exported from function
+bwridgeCpy = bwridge; %Copy that will be exported from function to be used in fibre reconstruction
 
 %Apply a weak watershed transform to the image:
-dists = -bwdist(bwridge);
-distA = imhmin(dists,waterThresh);
+dists = -graydist(I,bwridge);
+distA = imhmin(dists,waterThresh*(prctile(I(:),99)-prctile(I(:),1)));
 distW = watershed(distA);
 
 bwridge(distW == 0) = 1;
@@ -84,5 +84,9 @@ bwridge = ~bwareaopen(~bwridge,maxPoreArea,4);
 bwridge = bwareaopen(bwridge,minRidgeArea2,4);
 bwridge = bwmorph(bwridge,'thin',Inf);
 bwridge = bwskel(imclose(bwridge,strel('disk',1)));
+
+%Remove any ridges on image edges
+bwridge([1:3,end-2:end],:) = 0;
+bwridge(:,[1:3,end-2:end]) = 0;
 
 progressbar(1)
