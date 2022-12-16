@@ -50,6 +50,7 @@ FInds = unique(FInds);
 fibreProps = struct();
 
 measInd = 1; %Index used to index into the fibreProps structure
+blockInc = 0;
 for F = FInds'
     %Reconstruct fibre
     fibrePx = zeros(size(origImg));
@@ -124,6 +125,9 @@ for F = FInds'
             fibreProps(measInd).midwidth = nan(1); %Couldn't find the midpoint for some reason
         end
     else
+        if branchNo > 0
+            blockInc = blockInc + 1;
+        end
         fibreProps(measInd).backList = nan(1,2);
         fibreProps(measInd).midpoint = nan(1,2);
         fibreProps(measInd).midwidth = nan(1);
@@ -172,5 +176,6 @@ for F = FInds'
 
     progressbar(measInd/numel(FInds))
 end
+disp(blockInc)
 
 progressbar(1)

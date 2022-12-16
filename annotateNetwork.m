@@ -1,4 +1,4 @@
-function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,dx)
+function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,splitBranches)
 %ANNOTATETWORK finds long fibres within the input network (input should
 %be in graph format, output by skel2graph3d) based on the morphology
 %of the network and the original labelling of the fibres by the ridge
@@ -9,7 +9,8 @@ function [noteNode,noteLink] = annotateNetwork(inNode,inLink,fibreGroups,dx)
 %       -inLink: Input version of the links forming the network
 %       -fibreGroups: Image containing labelled binary segmentations of the
 %       fibres, as output by the ridge detection algorithm.
-%       -dx: Spacing between pixels, in nm.
+%       -splitBranches: Whether or not the program should attempt to winnow
+%       automatically reconstructed fibres down to linear structures.
 %
 %   OUTPUTS:
 %       -noteNode: Output version of nodes, with nodes forming part of a
@@ -132,112 +133,10 @@ for n = 1:size(inNode,2)
     inNode(n).Fibres = fibList;
 end
 
-%% Part 3: Break fibre assignments where more than two links at a single node belong to a single fibre
 %Find maximal fibre index
 maxFib = max([inNode.Fibres]);
 
-for n = 1:size(inNode,2)
-    fibCnts = histcounts(inNode(n).Fibres,0.5:maxFib+0.5);
-    badInds = find(fibCnts > 2); %Find the indicies of any fibres coming out of this node that are dodgy (more than two links associated with them)
-    %Go through each dodgy index...
-    for bi = badInds
-        tgtLks = inNode(n).Fibres == bi;
-        tgtLksInds = find(tgtLks);
-        angList = inNode(n).angs(tgtLks);
-        
-        smallestDiff = 2*pi;
-        for a1 = 1:size(angList,2)
-            for a2 = 1:size(angList,2)
-                if wrapToPi(circ_dist(angList(a1),angList(a2))-pi) < smallestDiff && a1~=a2
-                    smallestDiff = wrapToPi(circ_dist(angList(a1),angList(a2))-pi);
-                    keepi = a1;
-                    keepj = a2;
-                end
-            end
-        end
-        
-        ridInds = true(size(angList));
-        ridInds(keepi) = false;
-        ridInds(keepj) = false;
-        ridInds = tgtLksInds(ridInds);
-        ridLinks = inNode(n).links(ridInds); %Target links to disconnect
-        ridNodes = inNode(n).conn(ridInds);
-        
-        %Now reindex everything connected to the links you've found you want to disconnect...
-        for ri = 1:size(ridLinks,2)
-            [chngNds,chngLks] = findSubfibreIndices(inNode,inLink,ridNodes(ri),ridLinks(ri),20);
-            
-            maxFib = maxFib + 1;
-            for cn = 1:size(chngNds,2)
-                inLink(chngLks(cn)).Fibre = maxFib;
-                inNode(chngNds(cn)).Fibres(inNode(chngNds(cn)).Fibres == bi) = maxFib;
-            end
-            inNode(n).Fibres(ridInds(ri)) = maxFib; %Finally update the origin node
-        end
-    end
-end
-
-%% Part 4: Break fibre assignments where link pairs are more than angThreshHi away from each other at a given node
-for n = 1:size(inNode,2)
-    fibCnts = histcounts(inNode(n).Fibres,0.5:maxFib+0.5);
-    queryInds = find(fibCnts == 2); %Find the indicies of any fibres coming out of this node that are of interest (exactly two links associated with them)
-    %Go through each query index...
-    for qi = queryInds
-        tgtLks = inNode(n).Fibres == qi;
-        angList = inNode(n).angs(tgtLks);
-        angDiff = wrapToPi(circ_dist(angList(1),angList(2))+pi);
-        
-        if abs(angDiff) > angThreshHi %If the difference between the link angles is too great, break the assignment to the same fibre
-            tgtInds = find(tgtLks);
-            ridLink = inNode(n).links(tgtInds(1));
-            ridNode = inNode(n).conn(tgtInds(1));
-            
-            [chngNds,chngLks] = findSubfibreIndices(inNode,inLink,ridNode,ridLink,20);
-            
-            maxFib = maxFib + 1;
-            for cn = 1:size(chngNds,2)
-                inLink(chngLks(cn)).Fibre = maxFib;
-                inNode(chngNds(cn)).Fibres(inNode(chngNds(cn)).Fibres == qi) = maxFib;
-            end
-            inNode(n).Fibres(tgtInds(1)) = maxFib; %Finally update the origin node
-        end
-    end
-end
-
-%% Part 5: Break apart any loop structures in the fibres
-for f = 1:maxFib
-    linkList = [];
-    nodeListA = [];
-    nodeListB = [];
-    for l = 1:size(inLink,2)
-        if inLink(l).Fibre == f
-            linkList = [linkList;l];
-            nodeListA = [nodeListA;inLink(l).n1];
-            nodeListB = [nodeListB;inLink(l).n2];
-        end
-    end
-    
-    %If fibre is part of one (or several) loops, the number of unique nodes
-    %should be less than or equal to the number of links
-    noLinks = numel(linkList);
-    noNodes = numel(unique([nodeListA;nodeListB]));
-    
-    if noLinks > 0 && noNodes > 0 && noLinks >= noNodes %If you've found a loop, break it apart into separate link
-        col = rand(1,3);
-        for l = 1:size(linkList,1)
-            maxFib = maxFib + 1;
-            lk = linkList(l);
-            nd1 = nodeListA(l);
-            nd2 = nodeListB(l);
-            
-            inNode(nd1).Fibres(inNode(nd1).links == lk) = maxFib;
-            inNode(nd2).Fibres(inNode(nd2).links == lk) = maxFib;
-            inLink(lk).Fibre = maxFib;
-        end
-    end
-end
-
-%% Part 6: Fuse fibres that terminate at a common node and links are less than angThreshLo away from each other at that node
+%% Part 3: Fuse fibres that terminate at a common node and links are less than angThreshLo away from each other at that node
 for n = 1:size(inNode,2)
     angList = inNode(n).angs';
     angDists = abs(triu(squareform(wrapToPi(pdist(angList,@circ_dist)+pi)),1));
@@ -265,6 +164,170 @@ for n = 1:size(inNode,2)
                 inNode(chngNds(cn)).Fibres(inNode(chngNds(cn)).Fibres == ridFib) = extendFib;
             end
             inNode(n).Fibres(linkInd2) = extendFib; %Finally update the origin node
+        end
+    end
+end
+
+%% Part 4: Break apart any loop structures in the fibres
+if splitBranches
+    for f = 1:maxFib
+        linkList = [];
+        nodeListA = [];
+        nodeListB = [];
+        for l = 1:size(inLink,2)
+            if inLink(l).Fibre == f
+                linkList = [linkList;l];
+                nodeListA = [nodeListA;inLink(l).n1];
+                nodeListB = [nodeListB;inLink(l).n2];
+            end
+        end
+
+        %If fibre is part of one (or several) loops, the number of unique nodes
+        %should be less than or equal to the number of links
+        noLinks = numel(linkList);
+        noNodes = numel(unique([nodeListA;nodeListB]));
+        noLoops = noLinks-noNodes+1;
+        
+        if noLoops < 0 && ~isempty(linkList) %Implies that you have multiple disjointed sections assigned to a single fibre. Need to be broken up
+                        
+        %If you've found one (or several) loops, break it (them) apart into separate links
+        elseif noLoops == 1 && ~isempty(linkList) %Simplest and most common case, can handle elegantly 
+            %Repeatedly strip away non-cyclic periphery to find cyclic
+            %core, then break one link
+            nodeListAll = unique([nodeListA;nodeListB]);
+            nodeDegs = zeros(size(nodeListAll));
+            for n = 1:size(nodeListAll,1)
+                nodeDegs(n) = sum(inNode(nodeListAll(n)).Fibres == f); %Will be equal to 1 for peripheral nodes
+            end
+
+            trimNodes = nodeListAll(nodeDegs == 1);
+
+            inNodeCpy = inNode;
+            while ~isempty(trimNodes)
+                %Remove the links that connects to these nodes from the
+                %current fibre list
+                trimLinks = [];
+                for t = trimNodes'
+                    for lInd = 1:numel(linkList)
+                        l = linkList(lInd);
+                        if inLink(l).n1 == t
+                            trimLinks = [trimLinks,lInd];
+                            thisLink = linkList(lInd);
+                            otherNode = inLink(l).n2;
+                        elseif inLink(l).n2 == t
+                            trimLinks = [trimLinks,lInd];
+                            thisLink = linkList(lInd);
+                            otherNode = inLink(l).n1;
+                        end
+                    end
+                    inNodeCpy(otherNode).Fibres(inNodeCpy(otherNode).links == thisLink) = 0;
+                    inNodeCpy(t).Fibres(inNodeCpy(t).links == thisLink) = 0;
+                end
+                
+                %Remove these nodes and links from the current list
+                nodeListAll(nodeDegs == 1) = [];
+                linkList(trimLinks) = [];
+                
+                %Refresh the nodes to be trimmed
+                nodeDegs = zeros(size(nodeListAll));
+                for n = 1:size(nodeListAll,1)
+                    nodeDegs(n) = sum(inNodeCpy(nodeListAll(n)).Fibres == f); %Will be equal to 1 for peripheral nodes
+                end
+                trimNodes = nodeListAll(nodeDegs == 1);
+            end
+
+            %Pick a random link in the remaining cycle, and assign it to a
+            %new fibre
+            maxFib = maxFib + 1;
+            lk = linkList(randi(numel(linkList)));
+            nd1 = inLink(lk).n1;
+            nd2 = inLink(lk).n2;
+
+            inNode(nd1).Fibres(inNode(nd1).links == lk) = maxFib;
+            inNode(nd2).Fibres(inNode(nd2).links == lk) = maxFib;
+            inLink(lk).Fibre = maxFib;
+        elseif noLoops > 1  && ~isempty(linkList) %Could handle these cases using more sophisitcated techniques; for now, just break all links into separate fibres
+            for l = 1:size(linkList,1)
+                maxFib = maxFib + 1;
+                lk = linkList(l);
+                nd1 = nodeListA(l);
+                nd2 = nodeListB(l);
+
+                inNode(nd1).Fibres(inNode(nd1).links == lk) = maxFib;
+                inNode(nd2).Fibres(inNode(nd2).links == lk) = maxFib;
+                inLink(lk).Fibre = maxFib;
+            end
+        end
+    end
+end
+
+%% Part 5: Break fibre assignments where link pairs are more than angThreshHi away from each other at a given node
+for n = 1:size(inNode,2)
+    fibCnts = histcounts(inNode(n).Fibres,0.5:maxFib+0.5);
+    queryInds = find(fibCnts == 2); %Find the indicies of any fibres coming out of this node that are of interest (exactly two links associated with them)
+    %Go through each query index...
+    for qi = queryInds
+        tgtLks = inNode(n).Fibres == qi;
+        angList = inNode(n).angs(tgtLks);
+        angDiff = wrapToPi(circ_dist(angList(1),angList(2))+pi);
+        
+        if abs(angDiff) > angThreshHi %If the difference between the link angles is too great, break the assignment to the same fibre
+            tgtInds = find(tgtLks);
+            ridLink = inNode(n).links(tgtInds(1));
+            ridNode = inNode(n).conn(tgtInds(1));
+            
+            [chngNds,chngLks] = findSubfibreIndices(inNode,inLink,ridNode,ridLink,20);
+            
+            maxFib = maxFib + 1;
+            for cn = 1:size(chngNds,2)
+                inLink(chngLks(cn)).Fibre = maxFib;
+                inNode(chngNds(cn)).Fibres(inNode(chngNds(cn)).Fibres == qi) = maxFib;
+            end
+            inNode(n).Fibres(tgtInds(1)) = maxFib; %Finally update the origin node
+        end
+    end
+end
+
+%% Part 6: Break fibre assignments where more than two links at a single node belong to a single fibre
+if splitBranches
+    for n = 1:size(inNode,2)
+        fibCnts = histcounts(inNode(n).Fibres,0.5:maxFib+0.5);
+        badInds = find(fibCnts > 2); %Find the indicies of any fibres coming out of this node that are dodgy (more than two links associated with them)
+        %Go through each dodgy index...
+        for bi = badInds
+            tgtLks = inNode(n).Fibres == bi;
+            tgtLksInds = find(tgtLks);
+            angList = inNode(n).angs(tgtLks);
+
+            smallestDiff = 2*pi;
+            for a1 = 1:size(angList,2)
+                for a2 = 1:size(angList,2)
+                    if wrapToPi(circ_dist(angList(a1),angList(a2))-pi) < smallestDiff && a1~=a2
+                        smallestDiff = wrapToPi(circ_dist(angList(a1),angList(a2))-pi);
+                        keepi = a1;
+                        keepj = a2;
+                    end
+                end
+            end
+
+            ridInds = true(size(angList));
+            ridInds(keepi) = false;
+            ridInds(keepj) = false;
+            ridInds = tgtLksInds(ridInds);
+            ridLinks = inNode(n).links(ridInds); %Target links to disconnect
+            ridNodes = inNode(n).conn(ridInds);
+
+            %Now reindex everything connected to the links you've found you want to disconnect...
+            for ri = 1:size(ridLinks,2)
+                [chngNds,chngLks] = findSubfibreIndices(inNode,inLink,ridNodes(ri),ridLinks(ri),20);
+
+                maxFib = maxFib + 1;
+                for cn = 1:size(chngNds,2)
+                    inLink(chngLks(cn)).Fibre = maxFib;
+                    inNode(chngNds(cn)).Fibres(inNode(chngNds(cn)).Fibres == bi) = maxFib;
+                end
+                inNode(n).Fibres(ridInds(ri)) = maxFib; %Finally update the origin node
+            end
         end
     end
 end
