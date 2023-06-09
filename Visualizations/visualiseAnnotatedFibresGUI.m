@@ -1,4 +1,4 @@
-function [] = visualiseAnnotatedFibresGUI(fibreProps,noteNodes,noteLinks,origZ,colType,dx,ax)
+function [] = visualiseAnnotatedFibresGUI(fibreProps,noteNodes,noteLinks,origZ,colType,cmap,hideBackground,dx,ax)
 %VISUALISEANNOTATEDFIBRESGUI draws and displays a reconstruction of
 %automatically detected and measured fibres in an AFM image.
 %
@@ -12,33 +12,39 @@ function [] = visualiseAnnotatedFibresGUI(fibreProps,noteNodes,noteLinks,origZ,c
 %       -colType: String specifying the type of colourscheme you want for
 %       the reconstruction. Either 'localOrientation' (shows the local
 %       orientation at each position in each fibre), 'globalOrientation'
-%       (shows the global average orientation of each fibre) or 'Length
+%       (shows the global average orientation of each fibre) or 'Length'
 %       (shows the length of each fibre).
+%       -cmap: The colourmap selected for visualising the fibres
 %
 %   Author: Oliver J. Meacock, 2022
 
-widReconFac = dx*4; %Will display fibres at half measured width.
+widReconFac = dx*5; %Will display fibres at half measured width.
 
 hold(ax,'on')
 
 %% Draw fibres
-
-imgLow = prctile(origZ(:),1);
-imgHi = prctile(origZ(:),99);
-sharpImg = (origZ-imgLow)/(imgHi-imgLow);
-sharpImg(sharpImg > 1) = 1; sharpImg(sharpImg < 0) = 0;
-
-%Paste backprojection into each channel
-rCh = sharpImg;
-gCh = sharpImg;
-bCh = sharpImg;
-
-switch colType
-    case {'localOrientation','globalOrientation'}
-        cmap = colormap(ax,'hsv'); %For angular variables
-    case 'Length'
-        cmap = colormap(ax,'turbo'); %For linear variables
+if ~hideBackground
+    imgLow = prctile(origZ(:),1);
+    imgHi = prctile(origZ(:),99);
+    sharpImg = (origZ-imgLow)/(imgHi-imgLow);
+    sharpImg(sharpImg > 1) = 1; sharpImg(sharpImg < 0) = 0;
+    
+    %Paste backprojection into each channel
+    rCh = sharpImg;
+    gCh = sharpImg;
+    bCh = sharpImg;
+else
+    rCh = ones(size(origZ));
+    gCh = ones(size(origZ));
+    bCh = ones(size(origZ));
 end
+
+% switch colType
+%     case {'localOrientation','globalOrientation'}
+%         cmap = colormap(ax,'hsv'); %For angular variables
+%     case 'Length'
+%         cmap = colormap(ax,'turbo'); %For linear variables
+% end
 
 switch colType
     case 'Length'
@@ -95,9 +101,9 @@ switch colType
             end
         end
     case 'localOrientation' %Rather expansive for what it does... may be able to improve
+        [xGrid,yGrid] = meshgrid(1:size(origZ,1),1:size(origZ,2));
         for F = 1:size(fibreProps,2)
             if sum(isnan(fibreProps(F).localOrientation)) == 0
-                se = strel('disk',round(fibreProps(F).width/widReconFac));
                 for i = 1:size(fibreProps(F).localOrientation,1)
                     currCInd = ceil(((fibreProps(F).localOrientation(i)+pi/2)/pi)*size(cmap,1));
                     currCInd = min(currCInd,size(cmap,1));
@@ -105,15 +111,18 @@ switch colType
 
                     cVals = cmap(currCInd,:);
                     
-                    backboneImg = zeros(size(origZ));
-                    backboneImg(sub2ind(size(origZ),fibreProps(F).backList(:,1),fibreProps(F).backList(:,2))) = 1;
-                    currInds = logical(imdilate(backboneImg,se));
+                    xLoc = fibreProps(F).backList(i,1);
+                    yLoc = fibreProps(F).backList(i,2);
+                    
+                    localWidth = round(fibreProps(F).width/widReconFac);
+                    currInds = sqrt((xGrid-xLoc).^2 + (yGrid-yLoc).^2) < localWidth; 
 
                     rCh(currInds) = rCh(currInds)/2 + cVals(1)/2;
                     gCh(currInds) = gCh(currInds)/2 + cVals(2)/2;
                     bCh(currInds) = bCh(currInds)/2 + cVals(3)/2;
                 end
             end
+            disp(['F is ',num2str(F),' of ',num2str(size(fibreProps,2)),'.'])
         end
 end
 

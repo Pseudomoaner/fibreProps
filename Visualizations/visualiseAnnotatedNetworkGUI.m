@@ -1,4 +1,4 @@
-function [] = visualiseAnnotatedNetworkGUI(noteLinks,noteNodes,origZ,ax)
+function [] = visualiseAnnotatedNetworkGUI(noteLinks,noteNodes,origZ,hideBackground,ax)
 %RECONSTRUCTFIBRENETWORK creates a visual reconstruction of an annotated
 %AFM fibre graph. Mostly used for debugging purposes.
 %
@@ -13,10 +13,16 @@ function [] = visualiseAnnotatedNetworkGUI(noteLinks,noteNodes,origZ,ax)
 %   Author: Oliver J. Meacock, 2022
 
 hold(ax,'on')
-imagesc(ax,origZ)
-colormap(ax,'turbo')
 
-caxis(ax,[prctile(origZ(:),1),prctile(origZ(:),99)])
+if ~hideBackground
+    imagesc(ax,origZ)
+    colormap(ax,'turbo')
+
+    caxis(ax,[prctile(origZ(:),1),prctile(origZ(:),99)])
+else
+    imSize = size(origZ);
+    axis(ax,[0,imSize(1),0,imSize(2)]);
+end
 
 %Begin with links. Colour each fibre a separate random colour.
 fibCols = rand(size(noteLinks,2),3); %Much larger than needed, but avoids needing to run through data first

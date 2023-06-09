@@ -1,4 +1,4 @@
-function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,widthCalibration)
+function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,cellOrient,widthCalibration)
 %MEASUREFIBRES measures the properties of fibres detected in the given
 %input image.
 %
@@ -9,6 +9,8 @@ function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,widthCalibration)
 %       information about the network graph's nodes.
 %       -origImg: The original AFM image, as output by txtToMat.
 %       -dx: The spacing between adjacent pixels, in nm.
+%       -cellOrient: Orientation of the parent cell this image was taken
+%       from.
 %       -widthCalibration: Factor by which to upscale detected widths to
 %       account for difference between automated and manually-assigned
 %       measurements (as the 'width' being automatically detected is a
@@ -136,10 +138,10 @@ for F = FInds'
     %Find the fibre orientation
     [fibrePxY,fibrePxX] = ind2sub(size(origImg),find(fibrePx));
     if abs(fibrePxX(end) - fibrePxX(1)) < abs(fibrePxY(end) - fibrePxY(1)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
-        fibreProps(measInd).meanOrientation = atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX)));
+        fibreProps(measInd).meanOrientation = wrapToPi((atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX))) + cellOrient)*2)/2;
     else
         unwrapped = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
-        fibreProps(measInd).meanOrientation = -wrapToPi(unwrapped*2 + pi)/2;
+        fibreProps(measInd).meanOrientation = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + cellOrient)*2)/2;
     end
 %     fitLine = polyfit(fibrePxX,fibrePxY,1);
 %     fibreProps(measInd).meanOrientation = atan(fitLine(1));
@@ -153,11 +155,12 @@ for F = FInds'
             ind2 = min(size(fibreProps(measInd).backList,1),i+oriWindHalfWidth);
 
             pxList = fibreProps(measInd).backList(ind1:ind2,:);
+            pxList = flip(pxList,2); %Flips x and y to bring everything into standard space
             if abs(pxList(end,1) - pxList(1,1)) < abs(pxList(end,2) - pxList(1,2)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
-                fibreProps(measInd).localOrientation(i) = atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1))));
+                fibreProps(measInd).localOrientation(i) = wrapToPi((atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1)))) + cellOrient)*2)/2;
             else
                 unwrapped = atan((pxList(:,1)-mean(pxList(:,1)))\(pxList(:,2)-mean(pxList(:,2))));
-                fibreProps(measInd).localOrientation(i) = -wrapToPi(unwrapped*2 + pi)/2;
+                fibreProps(measInd).localOrientation(i) = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + cellOrient)*2)/2;
             end
 %             fitLine = polyfit(pxList(:,1),pxList(:,2),1);
 %             fibreProps(measInd).localOrientation(i) = atan(1/fitLine(1));
@@ -176,6 +179,5 @@ for F = FInds'
 
     progressbar(measInd/numel(FInds))
 end
-disp(blockInc)
 
 progressbar(1)

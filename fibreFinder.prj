@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="3527163597" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="1901384730" file="C:\Users\Olivier\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\Olivier\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
     <param.appname>fibreFinder</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>Prototype detection software for detecting fibres in AFM peptidoglycan images.</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp8a349b98_472d_4893_9443_452a9b0c5925.png</param.screenshot>
+    <param.screenshot>C:\Users\Olivier\AppData\Local\Temp\tpac99fc5f_0cfb_48fc_9a20_ea9b51e98ca3.png</param.screenshot>
     <param.version>1.0</param.version>
     <param.products.name>
       <item>Image Processing Toolbox</item>
@@ -17,10 +17,10 @@
       <item>17</item>
     </param.products.id>
     <param.products.version>
-      <item>11.4</item>
+      <item>11.3</item>
     </param.products.version>
     <param.platforms />
-    <param.output>C:\Users\omeacock\Desktop\LaiaImgs</param.output>
+    <param.output>C:\Users\Olivier\Desktop\Laia_data</param.output>
     <param.guid>16f5e268-c709-499a-bded-33110b7f9c8e</param.guid>
     <unset>
       <param.icon />
@@ -60,20 +60,14 @@
     <fileset.resources />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\omeacock\Desktop" name="LaiaImgs" optional="false">C:\Users\omeacock\Desktop\LaiaImgs</file>
+      <file location="C:\Users\Olivier\Desktop" name="Laia_data" optional="false">C:\Users\Olivier\Desktop\Laia_data</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2021b</root>
+      <root>C:\Program Files\MATLAB\R2021a</root>
       <toolboxes>
-        <toolbox name="matlabcoder" />
         <toolbox name="neuralnetwork" />
       </toolboxes>
-      <toolbox>
-        <matlabcoder>
-          <enabled>true</enabled>
-        </matlabcoder>
-      </toolbox>
       <toolbox>
         <neuralnetwork>
           <enabled>true</enabled>
