@@ -82,7 +82,7 @@ switch colType
         fibScores = [fibreProps(:).meanOrientation];
 
         for F = 1:size(fibreProps,2)
-            if ~isnan(fibScores(F))
+            if ~isnan(fibScores(F)) && ~isnan(fibreProps(F).midwidth)
                 currCInd = ceil(((fibreProps(F).meanOrientation+pi/2)/pi)*size(cmap,1));
                 currCInd = min(currCInd,size(cmap,1));
                 currCInd = max(currCInd,1);
