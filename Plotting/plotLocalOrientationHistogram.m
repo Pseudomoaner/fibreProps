@@ -1,4 +1,4 @@
-function [] = plotLocalOrientationHistogram(axes,inDat,cMap)
+function [] = plotLocalOrientationHistogram(axes,inDat,cMap,normalise)
 %PLOTLOCALORIENTATIONHISTOGRAM plots the histogram of the local
 %orientations of fibres detected in the input AFM data.
 %
@@ -15,7 +15,11 @@ angList = (angSet(1:end-1) + diff(angSet(1:2))/2)';
 angList = [angList;angList + pi;angList(1)];
 
 for i = 1:size(inDat,1)
-    N = histcounts(inDat{i}+pi/2,'BinEdges',angSet);
+    if normalise
+        N = histcounts(inDat{i}+pi/2,'BinEdges',angSet,'Normalization','pdf');
+    else
+        N = histcounts(inDat{i}+pi/2,'BinEdges',angSet,'Normalization','count');
+    end
 
     %Repeat N so the plot goes the full 360 degrees.
     N = [N';N';N(1)];
