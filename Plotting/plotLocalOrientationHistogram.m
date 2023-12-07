@@ -1,10 +1,17 @@
-function [] = plotLocalOrientationHistogram(axes,inDat,cMap,normalise)
+function [] = plotLocalOrientationHistogram(axes,cMap,normalise,inDat,labels)
 %PLOTLOCALORIENTATIONHISTOGRAM plots the histogram of the local
 %orientations of fibres detected in the input AFM data.
 %
 %   INPUTS:
-%       -fibreProps: A collection of measurements about the fibre network,
-%       including the localOrientation field.
+%       -axes: The target axes you want to plot into
+%       -cMap: The colourmap you want to use to distinguish different
+%       samples
+%       -normalise: Whether to use raw orientation bin counts or normalised
+%       (PDF) values.
+%       -inDat: The data for plotting. In a cell array, with each cell
+%       containing a different vector of angles.
+%       -labels: Strings defining the labels by which each dataset will be
+%       referred to in the legend.
 %
 %   Author: Oliver J. Meacock, (c) 2021
 
@@ -26,5 +33,7 @@ for i = 1:size(inDat,1)
     
     polarplot(axes,angList,N,'Color',cMap(i,:),'lineWidth',1.5)
 end
+
+legend(axes,labels,'Location','northwest','Interpreter','none')
 
 axes.ThetaLim = [0,180];
