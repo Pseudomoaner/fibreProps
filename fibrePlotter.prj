@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2758050175" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibrePlotter.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibrePlotter" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="4096646121" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibrePlotter.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibrePlotter" target="target.mlapps" target-name="Package App">
     <param.appname>fibrePlotter</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
@@ -8,23 +8,23 @@
     <param.icons />
     <param.summary>App for comparing properties of peptidoglycan fibre networks between conditions and samples.</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp73479f62_43e8_49cb_a891_53d82e25dbdf.png</param.screenshot>
-    <param.version>0.0</param.version>
+    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp7b2be027_3864_4b36_9a34_0501c0f07bd4.png</param.screenshot>
+    <param.version>1.0</param.version>
     <param.products.name />
     <param.products.id />
     <param.products.version />
     <param.platforms />
-    <param.output>${PROJECT_ROOT}</param.output>
+    <param.output>C:\Users\omeacock\Desktop</param.output>
     <param.guid>1540f3bf-f05f-46db-98b4-dfaa5bd9ca52</param.guid>
     <unset>
       <param.icon />
       <param.icons />
       <param.description />
+      <param.version />
       <param.products.name />
       <param.products.id />
       <param.products.version />
       <param.platforms />
-      <param.output />
     </unset>
     <fileset.main>
       <file>${PROJECT_ROOT}\fibrePlotter.mlapp</file>
@@ -36,14 +36,14 @@
       <file>${PROJECT_ROOT}\Circular Statistics Toolbox\circ_mean.m</file>
       <file>${PROJECT_ROOT}\Circular Statistics Toolbox\circ_r.m</file>
       <file>${PROJECT_ROOT}\Circular Statistics Toolbox\circ_vmpar.m</file>
-      <file>${PROJECT_ROOT}\Plotting\plotFibreBoxplot.m</file>
       <file>${PROJECT_ROOT}\Plotting\plotFibreHistogram.m</file>
       <file>${PROJECT_ROOT}\Plotting\plotLocalOrientationHistogram.m</file>
+      <file>C:\Users\omeacock\plotFibreBoxplot.m</file>
     </fileset.depfun>
     <fileset.resources />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\omeacock\Documents\GitHub" name="fibreProps" optional="false">C:\Users\omeacock\Documents\GitHub\fibreProps</file>
+      <file location="C:\Users\omeacock" name="Desktop" optional="false">C:\Users\omeacock\Desktop</file>
     </build-deliverables>
     <workflow />
     <matlab>
