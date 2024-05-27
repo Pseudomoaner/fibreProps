@@ -1,4 +1,4 @@
-function [] = visualiseAnnotatedFibresGUI(fibreProps,noteNodes,noteLinks,origZ,colType,cmap,hideBackground,dx,ax)
+function cbarH = visualiseAnnotatedFibresGUI(fibreProps,noteNodes,noteLinks,origZ,colType,cmap,hideBackground,dx,ax)
 %VISUALISEANNOTATEDFIBRESGUI draws and displays a reconstruction of
 %automatically detected and measured fibres in an AFM image.
 %
@@ -168,3 +168,19 @@ end
 % end
 % 
 % title('Back-projected fibres')
+
+%% Make colorbar/wheel
+switch colType
+    case 'Length'
+        colormap(ax,cmap)
+        cbarH = colorbar(ax,'eastoutside');
+        clim(ax,[0,max(fibScores)]*dx)
+        cbarH.FontSize = 12;
+        cbarH.Label.String = 'Fibre length (nm)';
+    case {'meanOrientation','localOrientation'}
+        colormap(ax,flip(cmap,1))
+        cbarH = colorbar(ax,'eastoutside');
+        clim(ax,[-90,90])
+        cbarH.FontSize = 12;
+        cbarH.Label.String = 'Fibre orientation (degrees)';
+end
