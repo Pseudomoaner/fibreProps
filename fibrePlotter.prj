@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>App for comparing properties of peptidoglycan fibre networks between conditions and samples.</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp7b2be027_3864_4b36_9a34_0501c0f07bd4.png</param.screenshot>
+    <param.screenshot />
     <param.version>1.0</param.version>
     <param.products.name />
     <param.products.id />
@@ -20,6 +20,7 @@
       <param.icon />
       <param.icons />
       <param.description />
+      <param.screenshot />
       <param.version />
       <param.products.name />
       <param.products.id />
