@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2735994603" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="1110096845" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
     <param.appname>fibreFinder</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>Prototype detection software for detecting fibres in AFM peptidoglycan images.</param.summary>
     <param.description />
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tpbafdaee7_49ca_4545_8cb8_cae8034f0809.png</param.screenshot>
+    <param.screenshot />
     <param.version>1.0</param.version>
     <param.products.name>
       <item>Image Processing Toolbox</item>
@@ -26,6 +26,7 @@
       <param.icon />
       <param.icons />
       <param.description />
+      <param.screenshot />
       <param.version />
       <param.platforms />
     </unset>
