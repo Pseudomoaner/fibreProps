@@ -1,15 +1,17 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="1110096845" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2407206460" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
     <param.appname>fibreFinder</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
     <param.company>University of Lausanne</param.company>
     <param.icon />
     <param.icons />
-    <param.summary>Prototype detection software for detecting fibres in AFM peptidoglycan images.</param.summary>
-    <param.description />
-    <param.screenshot />
-    <param.version>1.0</param.version>
+    <param.summary>Detection software for detecting fibres in AFM peptidoglycan images.</param.summary>
+    <param.description>FibreFinder is a Graphical User Interface (GUI) that automates detection and quantification of the peptidoglycan fibre network in a series of images associated with a single condition. Users select analysis parameters on a single image, and then apply these parameters to all images in the dataset with a built-in batch processing system.
+
+For more details, please refer to the project's Github page: https://github.com/Pseudomoaner/fibreProps</param.description>
+    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tpa6b79d31_7c4c_4ade_93f4_1d7a23d43e83.png</param.screenshot>
+    <param.version>0.1</param.version>
     <param.products.name>
       <item>Image Processing Toolbox</item>
     </param.products.name>
@@ -20,15 +22,13 @@
       <item>23.2</item>
     </param.products.version>
     <param.platforms />
-    <param.output>C:\Users\omeacock\Desktop\LaiaImgs</param.output>
+    <param.output>${PROJECT_ROOT}</param.output>
     <param.guid>16f5e268-c709-499a-bded-33110b7f9c8e</param.guid>
     <unset>
       <param.icon />
       <param.icons />
-      <param.description />
-      <param.screenshot />
-      <param.version />
       <param.platforms />
+      <param.output />
     </unset>
     <fileset.main>
       <file>${PROJECT_ROOT}\fibreFinder.mlapp</file>
@@ -63,7 +63,7 @@
     </fileset.resources>
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\omeacock\Desktop" name="LaiaImgs" optional="false">C:\Users\omeacock\Desktop\LaiaImgs</file>
+      <file location="C:\Users\omeacock\Documents\GitHub" name="fibreProps" optional="false">C:\Users\omeacock\Documents\GitHub\fibreProps</file>
     </build-deliverables>
     <workflow />
     <matlab>
