@@ -2,7 +2,7 @@
 Automated detection and measurement of peptidoglycan fibres in AFM images
 
 ## What you will need to do before beginning analysis:
-1. **Exporting AFM data:**
+1. **Exporting AFM data:** fibreFinder currently only supports data exported from [Gwyddion](http://gwyddion.net/). To export images in the appropriate format, first open an AFM image and set the appropriate width/height, making sure to set spatial units as meters. Export the file as xyz text data (.xyz) by selecting xyz text data as the file type. Select the 'add informational comment' header from the pop-up export window and ensure that the precision is set to 5.
 2. **File structure:** fibreProps assumes that your AFM data is collected into directories that represent different conditions. 'Conditions' here refers to any set of experimental parameters that may be interesting to compare between such as different species identities, different drug treatments, different cell wall regions etc. Specifically, your data should be arranged as:
 ```
    Root/--Condition1/--Image1.txt
