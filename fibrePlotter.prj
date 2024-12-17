@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="3573775198" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibrePlotter.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibrePlotter" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="1098890543" file="C:\Users\bi1ojm\Documents\GitHub\fibreProps\fibrePlotter.prj" location="C:\Users\bi1ojm\Documents\GitHub\fibreProps" name="fibrePlotter" target="target.mlapps" target-name="Package App">
     <param.appname>fibrePlotter</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
@@ -10,8 +10,8 @@
     <param.description>FibrePlotter is a GUI that enables rapid statistical and visual comparisons between multiple conditions and images of AFM data. It is built to work with the output of fibreFinder.
 
 For more details, please refer to the project's Github page: https://github.com/Pseudomoaner/fibreProps</param.description>
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tp89146d57_e4e9_42a1_b25a_6323e3ba4692.png</param.screenshot>
-    <param.version>0.1</param.version>
+    <param.screenshot>C:\Users\bi1ojm\AppData\Local\Temp\tp3e2726cc_689c_4661_9cdb_6548c96c3964.png</param.screenshot>
+    <param.version>1.0</param.version>
     <param.products.name />
     <param.products.id />
     <param.products.version />
@@ -21,6 +21,7 @@ For more details, please refer to the project's Github page: https://github.com/
     <unset>
       <param.icon />
       <param.icons />
+      <param.version />
       <param.products.name />
       <param.products.id />
       <param.products.version />
@@ -44,12 +45,49 @@ For more details, please refer to the project's Github page: https://github.com/
     <fileset.resources />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\omeacock\Documents\GitHub" name="fibreProps" optional="false">C:\Users\omeacock\Documents\GitHub\fibreProps</file>
+      <file location="C:\Users\bi1ojm\Documents\GitHub" name="fibreProps" optional="false">C:\Users\bi1ojm\Documents\GitHub\fibreProps</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2023b</root>
-      <toolboxes />
+      <root>C:\Program Files\MATLAB\R2024a</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
     </matlab>
     <platform>
       <unix>false</unix>
