@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.apptool" plugin-version="1.0">
-  <configuration build-checksum="2407206460" file="C:\Users\omeacock\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\omeacock\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
+  <configuration build-checksum="2407206460" file="C:\Users\bi1ojm\Documents\GitHub\fibreProps\fibreFinder.prj" location="C:\Users\bi1ojm\Documents\GitHub\fibreProps" name="fibreFinder" target="target.mlapps" target-name="Package App">
     <param.appname>fibreFinder</param.appname>
     <param.authnamewatermark>Oliver Meacock</param.authnamewatermark>
     <param.email>oliver.meacock@unil.ch</param.email>
@@ -10,8 +10,8 @@
     <param.description>FibreFinder is a Graphical User Interface (GUI) that automates detection and quantification of the peptidoglycan fibre network in a series of images associated with a single condition. Users select analysis parameters on a single image, and then apply these parameters to all images in the dataset with a built-in batch processing system.
 
 For more details, please refer to the project's Github page: https://github.com/Pseudomoaner/fibreProps</param.description>
-    <param.screenshot>C:\Users\omeacock\AppData\Local\Temp\tpa6b79d31_7c4c_4ade_93f4_1d7a23d43e83.png</param.screenshot>
-    <param.version>0.1</param.version>
+    <param.screenshot>C:\Users\bi1ojm\AppData\Local\Temp\tp1c5e2fd6_c606_4446_aa3a_9dc3d6d73960.png</param.screenshot>
+    <param.version>1.0</param.version>
     <param.products.name>
       <item>Image Processing Toolbox</item>
     </param.products.name>
@@ -19,7 +19,7 @@ For more details, please refer to the project's Github page: https://github.com/
       <item>17</item>
     </param.products.id>
     <param.products.version>
-      <item>23.2</item>
+      <item>24.1</item>
     </param.products.version>
     <param.platforms />
     <param.output>${PROJECT_ROOT}</param.output>
@@ -27,6 +27,7 @@ For more details, please refer to the project's Github page: https://github.com/
     <unset>
       <param.icon />
       <param.icons />
+      <param.version />
       <param.platforms />
       <param.output />
     </unset>
@@ -36,6 +37,7 @@ For more details, please refer to the project's Github page: https://github.com/
     <fileset.depfun>
       <file>${PROJECT_ROOT}\annotateNetwork.m</file>
       <file>${PROJECT_ROOT}\Circular Statistics Toolbox\circ_dist.m</file>
+      <file>${PROJECT_ROOT}\findCircleCentre.m</file>
       <file>${PROJECT_ROOT}\findSubfibreIndices.m</file>
       <file>${PROJECT_ROOT}\healNetwork.m</file>
       <file>${PROJECT_ROOT}\makeAndCleanNetwork.m</file>
@@ -63,12 +65,49 @@ For more details, please refer to the project's Github page: https://github.com/
     </fileset.resources>
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\omeacock\Documents\GitHub" name="fibreProps" optional="false">C:\Users\omeacock\Documents\GitHub\fibreProps</file>
+      <file location="C:\Users\bi1ojm\Documents\GitHub" name="fibreProps" optional="false">C:\Users\bi1ojm\Documents\GitHub\fibreProps</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2023b</root>
-      <toolboxes />
+      <root>C:\Program Files\MATLAB\R2024a</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
     </matlab>
     <platform>
       <unix>false</unix>

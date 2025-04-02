@@ -1,4 +1,4 @@
-function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,cellOrient,widthCalibration)
+function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,lenOrient,circCent,widthCalibration)
 %MEASUREFIBRES measures the properties of fibres detected in the given
 %input image.
 %
@@ -9,8 +9,10 @@ function fibreProps = measureFibres(inNodes,inLinks,origImg,dx,cellOrient,widthC
 %       information about the network graph's nodes.
 %       -origImg: The original AFM image, as output by txtToMat.
 %       -dx: The spacing between adjacent pixels, in nm.
-%       -cellOrient: Orientation of the parent cell this image was taken
+%       -lenOrient: Orientation of the parent cell this image was taken
 %       from.
+%       -circCent: Location of the centre of the concentric circles in this
+%       image. Empty if the circular alignment option was not selected.
 %       -widthCalibration: Factor by which to upscale detected widths to
 %       account for difference between automated and manually-assigned
 %       measurements (as the 'width' being automatically detected is a
@@ -136,12 +138,24 @@ for F = FInds'
     end
     
     %Find the fibre orientation
-    [fibrePxY,fibrePxX] = ind2sub(size(origImg),find(fibrePx));
-    if abs(fibrePxX(end) - fibrePxX(1)) < abs(fibrePxY(end) - fibrePxY(1)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
-        fibreProps(measInd).meanOrientation = wrapToPi((atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX))) + cellOrient)*2)/2;
+    if ~isempty(circCent)
+        [fibrePxY,fibrePxX] = ind2sub(size(origImg),find(fibrePx));
+        if abs(fibrePxX(end) - fibrePxX(1)) < abs(fibrePxY(end) - fibrePxY(1)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+            fibOri = -wrapToPi((atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX))))*2 + pi)/2;
+        else
+            unwrapped = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
+            fibOri = wrapToPi((wrapToPi(unwrapped*2)/2)*2)/2;
+        end
+        corrAng = atan2(mean(fibrePxY)-circCent(2),mean(fibrePxX)-circCent(1)); %Place into radial coordinates from circle centre
+        fibreProps(measInd).meanOrientation = wrapToPi((corrAng-fibOri)*2 + pi)/2;
     else
-        unwrapped = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
-        fibreProps(measInd).meanOrientation = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + cellOrient)*2)/2;
+        [fibrePxY,fibrePxX] = ind2sub(size(origImg),find(fibrePx));
+        if abs(fibrePxX(end) - fibrePxX(1)) < abs(fibrePxY(end) - fibrePxY(1)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+            fibreProps(measInd).meanOrientation = wrapToPi((atan((fibrePxY-mean(fibrePxY))\(fibrePxX-mean(fibrePxX))) + lenOrient)*2)/2;
+        else
+            unwrapped = atan((fibrePxX-mean(fibrePxX))\(fibrePxY-mean(fibrePxY)));
+            fibreProps(measInd).meanOrientation = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + lenOrient)*2)/2;
+        end
     end
 %     fitLine = polyfit(fibrePxX,fibrePxY,1);
 %     fibreProps(measInd).meanOrientation = atan(fitLine(1));
@@ -156,11 +170,22 @@ for F = FInds'
 
             pxList = fibreProps(measInd).backList(ind1:ind2,:);
             pxList = flip(pxList,2); %Flips x and y to bring everything into standard space
-            if abs(pxList(end,1) - pxList(1,1)) < abs(pxList(end,2) - pxList(1,2)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
-                fibreProps(measInd).localOrientation(i) = wrapToPi((atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1)))) + cellOrient)*2)/2;
+            if ~isempty(circCent)
+                if abs(pxList(end,1) - pxList(1,1)) < abs(pxList(end,2) - pxList(1,2)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+                    locOri = -wrapToPi((atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1)))))*2 + pi)/2;
+                else
+                    unwrapped = atan((pxList(:,1)-mean(pxList(:,1)))\(pxList(:,2)-mean(pxList(:,2))));
+                    locOri = wrapToPi((wrapToPi(unwrapped*2)/2)*2)/2;
+                end
+                corrAng = atan2(mean(pxList(:,2))-circCent(2),mean(pxList(:,1))-circCent(1)); %Place into radial coordinates from circle centre
+                fibreProps(measInd).localOrientation(i) = wrapToPi((corrAng-locOri)*2 + pi)/2;
             else
-                unwrapped = atan((pxList(:,1)-mean(pxList(:,1)))\(pxList(:,2)-mean(pxList(:,2))));
-                fibreProps(measInd).localOrientation(i) = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + cellOrient)*2)/2;
+                if abs(pxList(end,1) - pxList(1,1)) < abs(pxList(end,2) - pxList(1,2)) %Least-squares fitting relies on having lots of independant x-values - if these are not available, switch x and y coordinates and add pi/2 to result
+                    fibreProps(measInd).localOrientation(i) = wrapToPi((atan((pxList(:,2)-mean(pxList(:,2)))\(pxList(:,1)-mean(pxList(:,1)))) + lenOrient)*2)/2;
+                else
+                    unwrapped = atan((pxList(:,1)-mean(pxList(:,1)))\(pxList(:,2)-mean(pxList(:,2))));
+                    fibreProps(measInd).localOrientation(i) = wrapToPi((-wrapToPi(unwrapped*2 + pi)/2 + lenOrient)*2)/2;
+                end
             end
 %             fitLine = polyfit(pxList(:,1),pxList(:,2),1);
 %             fibreProps(measInd).localOrientation(i) = atan(1/fitLine(1));
